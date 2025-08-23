@@ -68,21 +68,16 @@
     >
       <div class="check-content">
         <p>Sei sicuro di voler verificare il ruolo di <strong>{{ selectedPlayer }}</strong>?</p>
-        <p>Questa azione non può essere annullata.</p>
       </div>
       
-      <template v-if="roleCheckConfirmed" #footer>
-        <div class="role-result">
-          <div v-if="isImpostor(selectedPlayer)" class="impostor-result">
-            <h3>👤 IMPOSTORE</h3>
-            <p>{{ selectedPlayer }} è un impostore!</p>
-          </div>
-          <div v-else class="innocent-result">
-            <h3>👍 INNOCENTE</h3>
-            <p>{{ selectedPlayer }} non è un impostore.</p>
-          </div>
+    <template v-if="roleCheckConfirmed" #footer>
+      <div class="role-result">
+        <div class="role-text" :class="{ show: roleCheckConfirmed }">
+          <span v-if="isImpostor(selectedPlayer)">IMPOSTORE</span>
+          <span v-else>INNOCENTE</span>
         </div>
-      </template>
+      </div>
+    </template>
     </MaterialModal>
     
     <!-- Toast di notifica -->
@@ -100,6 +95,7 @@ import MaterialUserAvatar from '../components/MaterialUserAvatar.vue'
 import MaterialTextButton from '../components/MaterialTextButton.vue'
 import MaterialModal from '../components/MaterialModal.vue'
 import MaterialToast from '../components/MaterialToast.vue'
+import confetti from 'canvas-confetti'
 
 export default {
   name: 'JoinPartyAdmin',
@@ -196,28 +192,52 @@ export default {
       this.showCheckModal = false
       this.roleCheckConfirmed = false
     },
-    
-    confirmRoleCheck() {
-      if (!this.roleCheckConfirmed) {
-        this.roleCheckConfirmed = true
-        return false // Non chiudere la modale
-      }
-      
-      // Aggiungi il giocatore alla lista dei controllati
-      if (!this.checkedPlayers.includes(this.selectedPlayer)) {
-        this.checkedPlayers.push(this.selectedPlayer)
-      }
-      
-      this.showCheckModal = false
-      this.roleCheckConfirmed = false
-      
-      // Verifica se tutti i giocatori sono stati controllati
-      if (this.checkedPlayers.length === this.players.length) {
-        this.gameFinished = true
-        this.showToastMessage('Partita completata! Tutti i giocatori sono stati verificati.', 'success')
-      }
-    },
-    
+  
+confirmRoleCheck() {
+  // protezione: assicurati di avere un selectedPlayer valido
+  const player = this.selectedPlayer;
+  if (!player) {
+    console.warn('confirmRoleCheck chiamato senza selectedPlayer:', player);
+    this.showError('Nessun giocatore selezionato. Riprova.');
+    this.roleCheckConfirmed = false;
+    this.showCheckModal = false;
+    return;
+  }
+
+  // Primo click: mostro il ruolo (mostra la sezione con il risultato)
+  if (!this.roleCheckConfirmed) {
+    this.roleCheckConfirmed = true;
+  }
+
+  // Secondo click: conferma definitiva -> aggiorna stato e mostra effetti
+  if (!this.checkedPlayers.includes(player)) {
+    this.checkedPlayers.push(player);
+  }
+
+  const isImp = this.isImpostor(player);
+
+  // Esegui confetti (diversi colori / intensità per impostore/innocente)
+  try {
+    if (isImp) {
+      confetti({
+        particleCount: 120,
+        spread: 70,
+        origin: { y: 0.55 },
+        colors: ['#f44336', '#ff9800', '#ffeb3b']
+      });
+    }
+  } catch (e) {
+    // in ambienti senza canvas-confetti o se import non va, non bloccare l'app
+    console.warn('confetti failed', e);
+  }
+
+  if (this.checkedPlayers.length === this.players.length) {
+    this.gameFinished = true;
+    this.showToastMessage('Partita completata! Tutti i giocatori sono stati verificati.', 'success');
+  }
+},
+
+
     startCheckingPhase() {
       this.state = 'checking'
       this.showToastMessage('Fase di verifica iniziata! Clicca sui giocatori per scoprire se sono impostori.', 'success')
@@ -252,6 +272,41 @@ export default {
 </script>
 
 <style scoped>
+.role-result {
+  width: 100%; /* occuperà tutta la larghezza */
+  display: flex;
+  justify-content: center;
+  padding: 16px 0;
+}
+
+.role-text {
+  font-weight: bold;
+  text-transform: uppercase;
+  font-size: 24px;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 1s ease, transform 1s ease; /* transizione lenta */
+  width: 100%;
+  text-align: center;
+}
+
+.role-text.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.innocent-result {
+  background-color: rgba(76, 175, 80, 0.15);
+  color: var(--vp-c-green);
+  border: 2px solid var(--vp-c-green);
+  animation: innocent-glow 2s infinite alternate;
+}
+
+@keyframes innocent-glow {
+  0% { box-shadow: 0 0 5px var(--vp-c-green); }
+  100% { box-shadow: 0 0 20px var(--vp-c-green); }
+}
+
 .material-button {
   width: 100%;
 }
@@ -321,24 +376,12 @@ export default {
   padding: 16px 0;
 }
 
-.role-result {
-  text-align: center;
-  padding: 16px;
-  border-radius: 8px;
-  margin: 16px 0;
-}
-
 .impostor-result {
   background-color: rgba(244, 67, 54, 0.1);
   color: var(--vp-c-red);
   border: 1px solid var(--vp-c-red);
 }
 
-.innocent-result {
-  background-color: rgba(76, 175, 80, 0.1);
-  color: var(--vp-c-green);
-  border: 1px solid var(--vp-c-green);
-}
 
 /* Dark mode adjustments */
 .dark-mode .join-party-admin-page {
