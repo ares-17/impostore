@@ -2,6 +2,11 @@
   <div class="view-word-page" :class="{ 'dark-mode': isDark }">
     <div class="page-container">
       <h1 class="page-title">Visualizza la Parola 🔍</h1>
+      <div class="mt-4">
+        <span>Hai ricevuto un codice? 🔑
+          Inseriscilo qui, scegli il tuo nickname, e potrai entrare nella stanza con gli altri giocatori.
+          In pochi secondi sarai pronto a giocare insieme a loro!</span>
+      </div>
 
       <!-- Input codice/token -->
       <div class="token-section">

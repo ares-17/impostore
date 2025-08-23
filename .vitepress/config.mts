@@ -20,20 +20,9 @@ export default defineConfig({
     },
     // https://vitepress.dev/reference/default-theme-config
     nav: [
-      { text: 'Create Party', link: '/create-party' },
+      { text: 'Crea Partita', link: '/create-party' },
       { text: 'Unisciti alla partita', link: '/view-word' },
     ],
-
-    sidebar: [
-      {
-        text: '',
-        items: [
-          { text: 'Create Party', link: '/create-party' },
-          { text: 'Unisciti alla partita', link: '/view-word' },
-        ]
-      }
-    ],
-
     socialLinks: [
       { icon: 'github', link: 'https://github.com/ares-17' }
     ]

@@ -1,9 +1,10 @@
 <template>
-  <div class="material-dropdown-filled" :class="{ 'dropdown-open': isOpen, 'dropdown-filled': selectedValue, 'dark-mode': isDark }">
+  <div class="material-dropdown-filled" :class="{ 'dropdown-open': isOpen, 'dark-mode': isDark }">
+    <!-- Label fisso sopra -->
+    <label class="dropdown-label-fixed">{{ label }}</label>
+
+    <!-- Campo selezione -->
     <div class="dropdown-field" @click="toggleDropdown">
-      <label class="dropdown-label" :class="{ 'label-active': isOpen || selectedValue }">
-        {{ label }}
-      </label>
       <div class="selected-value">{{ selectedLabel || placeholder }}</div>
       <div class="dropdown-arrow" :class="{ 'arrow-active': isOpen }">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
@@ -11,7 +12,8 @@
         </svg>
       </div>
     </div>
-    
+
+    <!-- Menu opzioni -->
     <transition name="dropdown-transition">
       <div v-if="isOpen && filteredOptions.length > 0" class="dropdown-menu">
         <div class="menu-content">
@@ -28,7 +30,7 @@
       </div>
     </transition>
 
-    <!-- Messaggio per opzioni vuote -->
+    <!-- Nessuna opzione -->
     <transition name="dropdown-transition">
       <div v-if="isOpen && filteredOptions.length === 0" class="dropdown-menu">
         <div class="menu-content">
@@ -87,9 +89,7 @@ export default {
       const selectedOption = this.filteredOptions.find(opt => opt.value === this.selectedValue)
       return selectedOption ? selectedOption.label : null
     },
-    
     filteredOptions() {
-      // Filtra opzioni valide e rimuovi duplicati
       return this.options
         .filter(opt => opt && typeof opt === 'object' && opt.label && opt.value !== undefined)
         .filter((opt, index, self) => 
@@ -101,11 +101,9 @@ export default {
     modelValue(newValue) {
       this.selectedValue = newValue
     },
-    
     options: {
       immediate: true,
       handler(newOptions) {
-        // Reset selected value se non è più presente nelle opzioni
         if (this.selectedValue && newOptions.length > 0) {
           const optionExists = newOptions.some(opt => opt.value === this.selectedValue)
           if (!optionExists) {
@@ -131,21 +129,17 @@ export default {
         this.isOpen = !this.isOpen
       }
     },
-    
     selectOption(option) {
       if (!option || !option.value) return
-      
       this.selectedValue = option.value
       this.$emit('update:modelValue', option.value)
       this.isOpen = false
     },
-    
     handleClickOutside(event) {
       if (!this.$el.contains(event.target)) {
         this.isOpen = false
       }
     },
-    
     handleResize() {
       if (window.innerWidth < 768 && this.isOpen) {
         this.isOpen = false
@@ -161,19 +155,26 @@ export default {
   margin: 16px 0;
   font-family: 'Roboto', sans-serif;
   max-width: 100%;
-  min-height: 56px; /* Altezza minima per evitare layout shift */
+}
+
+/* Label fisso */
+.dropdown-label-fixed {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--vp-c-text-2);
 }
 
 .dropdown-field {
   position: relative;
   border: 1px solid var(--vp-c-border);
   border-radius: 4px;
-  padding: 22px 12px 8px;
+  padding: 12px;
   cursor: pointer;
   transition: all 0.3s ease;
   background-color: var(--vp-c-bg-soft);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-  min-height: 56px;
+  min-height: 48px;
   display: flex;
   align-items: center;
 }
@@ -185,41 +186,13 @@ export default {
 
 .dropdown-open .dropdown-field {
   border-color: var(--vp-c-brand);
-  border-width: 1px;
   box-shadow: 0 1px 6px rgba(0, 0, 0, 0.2);
-}
-
-.dropdown-filled .dropdown-field {
-  border-color: var(--vp-c-brand);
-}
-
-.dropdown-label {
-  position: absolute;
-  top: 12px;
-  left: 12px;
-  color: var(--vp-c-text-2);
-  font-size: 16px;
-  font-weight: 400;
-  pointer-events: none;
-  transition: all 0.3s ease;
-  transform-origin: top left;
-  background-color: var(--vp-c-bg-soft);
-  padding: 0 4px;
-  border-radius: 2px;
-}
-
-.label-active {
-  transform: translateY(-18px) scale(0.85);
-  color: var(--vp-c-brand);
-  background-color: var(--vp-c-bg);
-  font-weight: 500;
 }
 
 .selected-value {
   font-size: 16px;
   color: var(--vp-c-text-1);
   padding-right: 32px;
-  min-height: 24px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -251,7 +224,6 @@ export default {
   border-radius: 4px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   z-index: 1000;
-  overflow: hidden;
   max-height: 300px;
   overflow-y: auto;
 }
@@ -311,38 +283,19 @@ export default {
   }
 }
 
-/* Supporto per schermi molto piccoli */
 @media (max-width: 480px) {
   .selected-value {
     font-size: 14px;
   }
-  
-  .dropdown-label {
-    font-size: 14px;
-  }
-  
   .menu-item {
     padding: 10px 14px;
     font-size: 14px;
   }
 }
 
-/* Stile per dark mode */
+/* Dark mode */
 .dark-mode .dropdown-field {
   background-color: var(--vp-c-bg-soft-up);
   border-color: var(--vp-c-divider);
-}
-
-.dark-mode .dropdown-label {
-  background-color: var(--vp-c-bg-soft-up);
-}
-
-.dark-mode .label-active {
-  background-color: var(--vp-c-bg);
-}
-
-.dark-mode .dropdown-menu {
-  border-color: var(--vp-c-divider);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 </style>

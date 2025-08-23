@@ -2,6 +2,11 @@
   <div class="create-party-page" :class="{ 'dark-mode': isDark }">
     <div class="page-container">
       <h1 class="page-title">Crea Nuova Partita 🎉</h1>
+      <div class="mt-4">
+        <span>Vuoi iniziare una nuova partita? 🎲
+          In questa pagina puoi generare un codice unico da condividere con i tuoi amici.
+          Copia il codice e invialo agli altri giocatori: chiunque lo inserirà potrà unirsi alla tua partita.</span>
+      </div>
 
       <!-- Sezione Giocatori -->
       <div>
@@ -33,25 +38,21 @@
           @click="createParty" />
       </div>
 
-    <div v-if="gameCode" class="game-code-section">
-      <h3>Codice Partita</h3>
-      
-      <!-- Codice della partita -->
-      <div class="code-container">
-        <code class="game-code">{{ gameCode }}</code>
-      </div>
+      <div v-if="gameCode" class="game-code-section">
+        <h3>Codice Partita</h3>
 
-      <!-- Bottone copia a tutta larghezza -->
-      <div class="copy-button-section">
-        <MaterialTextButton
-          text="Copia Codice negli Appunti"
-          color-scheme="outline"
-          @click="copyGameCode"
-        />
-      </div>
+        <!-- Codice della partita -->
+        <div class="code-container">
+          <code class="game-code">{{ gameCode }}</code>
+        </div>
 
-      <p class="hint">Condividi questo codice con i giocatori per farli unire alla partita</p>
-    </div>
+        <!-- Bottone copia a tutta larghezza -->
+        <div class="copy-button-section">
+          <MaterialTextButton text="Copia Codice negli Appunti" color-scheme="outline" @click="copyGameCode" />
+        </div>
+
+        <p class="hint">Condividi questo codice con i giocatori per farli unire alla partita</p>
+      </div>
 
 
     </div>

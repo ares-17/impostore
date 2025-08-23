@@ -8,7 +8,7 @@ next: false
 hero:
   name: "Impostore"
   text: "Divertiti con i tuoi amici scoprendo chi è l'impostore! 👀"
-  tagline: "Gioca, inganna e divertiti con il nostro gioco multiplayer online"
+  tagline: "Puoi decidere se creare una nuova partita per i tuoi amici oppure unirti a una partita esistente se hai già un codice. Inizia subito a giocare!"
   actions:
     - theme: brand
       text: Crea Partita

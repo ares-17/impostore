@@ -2,11 +2,16 @@
   <div class="join-party-admin-page" :class="{ 'dark-mode': isDark }">
     <div class="page-container">
       <h1 class="page-title">Divertiti con i tuoi amici!</h1>
+      <div class="mt-4 mb-4">
+        <span>È il momento della verità… 👀 <br>
+          Questa pagina ti mostrerà il tuo ruolo segreto:
+          se sei Non impostore, vedrai la parola che devi conoscere come tutti gli altri;
+          se sei Impostore, scoprirai di esserlo e dovrai fingere di conoscere la parola! 🎭
+          <br>
+          Non far vedere questa schermata agli altri: il tuo ruolo deve restare segreto! 🤫</span>
+      </div>
 
-    <MaterialCheckbox
-      v-model="tokenAlreadyShared"
-      label="Il token è già stato condiviso con tutti i giocatori"
-    />
+      <MaterialCheckbox v-model="tokenAlreadyShared" label="Il token è già stato condiviso con tutti i giocatori" />
 
       <!-- Sezione Giocatori -->
       <div>
@@ -147,7 +152,7 @@ export default {
       if (this.tokenAlreadyShared) {
         return !this.checkedPlayers.includes(player) && !this.gameFinished
       }
-      
+
       if (this.state === 'revealing') {
         return !this.revealedPlayers.includes(player)
       } else {
