@@ -69,7 +69,7 @@ export default {
 }
 
 .material-button.primary:hover:not(.button-disabled) {
-  background-color: var(--vp-c-brand-dark);
+  background-color: var(--vp-c-brand-3);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 

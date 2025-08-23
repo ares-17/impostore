@@ -38,7 +38,7 @@ export const ICONS = {
 export const COLOR_SCHEMES = {
   PRIMARY: {
     bg: 'var(--vp-c-brand)',
-    hoverBg: 'white',
+    hoverBg: 'var(--vp-c-brand-soft)',
     icon: 'white',
     hoverIcon: 'var(--vp-c-brand)'
   },

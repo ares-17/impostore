@@ -24,7 +24,7 @@
               @click="closeModal"
             />
             <MaterialTextButton
-              text="Confirm"
+              text="Conferma"
               color-scheme="primary"
               @click="$emit('confirm')"
             />

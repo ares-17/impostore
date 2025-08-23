@@ -33,20 +33,26 @@
           @click="createParty" />
       </div>
 
-      <div v-if="gameCode" class="game-code-section">
-        <h3>Codice Partita</h3>
-        <div class="code-container">
-          <code class="game-code">{{ gameCode }}</code>
-          <MaterialButton icon="COPY" color-scheme="SECONDARY" size="small" @click="copyGameCode" />
-        </div>
-        <p class="hint">Condividi questo codice con i giocatori per farli unire alla partita</p>
-
-        <!-- Bottone di condivisione -->
-        <div class="share-button-section" style="margin-top:16px;">
-          <MaterialTextButton text="Condividi Token" color-scheme="primary" :disabled="!gameCode"
-            @click="shareGameCode" />
-        </div>
+    <div v-if="gameCode" class="game-code-section">
+      <h3>Codice Partita</h3>
+      
+      <!-- Codice della partita -->
+      <div class="code-container">
+        <code class="game-code">{{ gameCode }}</code>
       </div>
+
+      <!-- Bottone copia a tutta larghezza -->
+      <div class="copy-button-section">
+        <MaterialTextButton
+          text="Copia Codice negli Appunti"
+          color-scheme="outline"
+          @click="copyGameCode"
+        />
+      </div>
+
+      <p class="hint">Condividi questo codice con i giocatori per farli unire alla partita</p>
+    </div>
+
 
     </div>
 
@@ -193,7 +199,7 @@ export default {
 </script>
 
 <style scoped>
-.material-button.primary {
+.material-button {
   width: 100%;
   margin-top: 2rem;
 }
