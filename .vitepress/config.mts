@@ -5,7 +5,7 @@ export default defineConfig({
   title: "Impostore",
   description: "A VitePress Site",
   head: [
-    ['link', { rel: 'icon', href: '/public/icon-head.png' }]
+    ['link', { rel: 'icon', href: '/icon-head.png' }]
   ],
   vite: {
     css: {
@@ -16,8 +16,8 @@ export default defineConfig({
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     nav: [
-      { text: 'Home', link: '/' },
       { text: 'Create Party', link: '/create-party' },
+      { text: 'Unisciti alla partita', link: '/view-word' },
     ],
 
     sidebar: [
@@ -25,6 +25,7 @@ export default defineConfig({
         text: '',
         items: [
           { text: 'Create Party', link: '/create-party' },
+          { text: 'Unisciti alla partita', link: '/view-word' },
         ]
       }
     ],

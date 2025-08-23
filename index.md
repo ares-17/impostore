@@ -1,25 +1,29 @@
 ---
-# https://vitepress.dev/reference/default-theme-home-page
 layout: home
+
+# Disabilita le pagine suggerite sotto la pagina
+prev: false
+next: false
 
 hero:
   name: "Impostore"
-  text: "A VitePress Site"
-  tagline: My great project tagline
+  text: "Divertiti con i tuoi amici scoprendo chi è l'impostore! 👀"
+  tagline: "Gioca, inganna e divertiti con il nostro gioco multiplayer online"
   actions:
     - theme: brand
-      text: Create Party
+      text: Crea Partita
       link: /create-party
     - theme: alt
-      text: Join Party
-      link: /join-party
+      text: Unisciti a una Partita
+      link: /view-word
 
 features:
-  - title: Feature A
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
-  - title: Feature B
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
-  - title: Feature C
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
+  - title: Gioco Multiplayer
+    details: Sfida i tuoi amici in tempo reale e scopri chi è l'impostore tra voi.
+  - title: Ruolo Segreto
+    details: Ogni giocatore riceve un ruolo segreto e deve comportarsi di conseguenza.
+  - title: Interfaccia Intuitiva
+    details: Naviga facilmente tra le partite e visualizza i giocatori grazie a un'interfaccia semplice e chiara.
+  - title: Notifiche e Animazioni
+    details: Ricevi notifiche sullo stato del gioco e goditi effetti divertenti come coriandoli alla scoperta dell'impostore.
 ---
-
