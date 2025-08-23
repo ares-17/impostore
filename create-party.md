@@ -3,47 +3,82 @@ outline: deep
 ---
 
 # Create Party
+## Aggiungi Nuove Opzioni
 
-This page demonstrates usage of some of the runtime APIs provided by VitePress.
+<MaterialUserEdit />
+<MaterialUserEdit />
+<MaterialNumberInput
+  v-model="quantity"
+  label="Numero impostori"
+  placeholder=""
+  :max="10"
+  :min="0"
+  :step="1"
+  @update:modelValue="handleQuantityChange"
+/>
 
-The main `useData()` API can be used to access site, theme, and page data for the current page. It works in both `.md` and `.vue` files:
+<div class="current-value">
+  Valore attuale: {{ quantity }}
+</div>
+<div class="option-creator">
 
-```md
+  <div class="current-options">
+    <h3>Opzioni attuali:</h3>
+    <ul>
+      <li v-for="(option, index) in options" :key="index">
+        {{ option.label }} ({{ option.value }})
+      </li>
+    </ul>
+  </div>
+
+  <MaterialDropdownFilled 
+    :options="options" 
+    v-model="selectedOption"
+    label="Scegli un'opzione"
+    placeholder="Seleziona dal menu"
+  />
+</div>
+
 <script setup>
-import { useData } from 'vitepress'
+import { ref } from 'vue'
 
-const { theme, page, frontmatter } = useData()
+const newOptionText = ref('')
+const options = ref([
+  { label: 'Opzione 1', value: 'option1' },
+  { label: 'Opzione 2', value: 'option2' }
+])
+const selectedOption = ref(null)
+
+const addOption = () => {
+  if (newOptionText.value.trim()) {
+    const newValue = 'option' + (options.value.length + 1)
+    options.value.push({
+      label: newOptionText.value.trim(),
+      value: newValue
+    })
+    newOptionText.value = ''
+  }
+}
 </script>
 
-## Results
+<style>
+.option-creator {
+  max-width: 500px;
+  margin: 0 auto;
+}
 
-### Theme Data
-<pre>{{ theme }}</pre>
+.current-options {
+  margin: 24px 0;
+  padding: 16px;
+  background-color: var(--vp-c-bg-soft);
+  border-radius: 4px;
+}
 
-### Page Data
-<pre>{{ page }}</pre>
+.current-options h3 {
+  margin-top: 0;
+}
 
-### Page Frontmatter
-<pre>{{ frontmatter }}</pre>
-```
-
-<script setup>
-import { useData } from 'vitepress'
-
-const { site, theme, page, frontmatter } = useData()
-</script>
-
-## Results
-
-### Theme Data
-<pre>{{ theme }}</pre>
-
-### Page Data
-<pre>{{ page }}</pre>
-
-### Page Frontmatter
-<pre>{{ frontmatter }}</pre>
-
-## More
-
-Check out the documentation for the [full list of runtime APIs](https://vitepress.dev/reference/runtime-api#usedata).
+.current-options ul {
+  margin-bottom: 0;
+}
+</style>

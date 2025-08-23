@@ -4,6 +4,14 @@ import { defineConfig } from 'vitepress'
 export default defineConfig({
   title: "Impostore",
   description: "A VitePress Site",
+  head: [
+    ['link', { rel: 'icon', href: '/public/icon-head.png' }]
+  ],
+  vite: {
+    css: {
+      postcss: './postcss.config.js'
+    }
+  },
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     nav: [
