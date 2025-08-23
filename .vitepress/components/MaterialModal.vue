@@ -179,7 +179,7 @@ export default {
 
 /* Dark mode adjustments */
 .dark-mode .modal-container {
-  background-color: var(--vp-c-bg-soft-up);
+  background-color: var(--vp-c-bg);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
 }
 </style>

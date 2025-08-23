@@ -18,7 +18,6 @@ export default defineConfig({
     nav: [
       { text: 'Home', link: '/' },
       { text: 'Create Party', link: '/create-party' },
-      { text: 'Join Party', link: '/join-party' }
     ],
 
     sidebar: [
@@ -26,7 +25,6 @@ export default defineConfig({
         text: '',
         items: [
           { text: 'Create Party', link: '/create-party' },
-          { text: 'Join Party', link: '/join-party' }
         ]
       }
     ],

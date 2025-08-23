@@ -14,7 +14,7 @@
             :key="index"
             :nickname="user"
             :size="60"
-            :clickable="false"
+            :clickable="true"
             :deletable="!gameCode"
             @delete="removeUser(index)"
           />
