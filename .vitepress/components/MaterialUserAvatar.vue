@@ -1,14 +1,27 @@
 <template>
   <div class="material-user-avatar" :class="{ 'dark-mode': isDark }">
-    <div 
-      class="avatar-circle" 
-      :style="circleStyle"
-      @click="handleClick"
-    >
-      <span class="avatar-initials" :style="textStyle">
-        {{ initials }}
-      </span>
+    <div class="avatar-container">
+      <div 
+        class="avatar-circle" 
+        :style="circleStyle"
+        @click="handleClick"
+      >
+        <span class="avatar-initials" :style="textStyle">
+          {{ initials }}
+        </span>
+      </div>
+      
+      <!-- Bottone di rimozione -->
+      <MaterialButton
+        v-if="deletable"
+        icon="MINUS"
+        color-scheme="DANGER"
+        size="small"
+        @click="handleDelete"
+        class="delete-button"
+      />
     </div>
+    
     <div class="avatar-nickname">
       {{ nickname }}
     </div>
@@ -17,6 +30,7 @@
 
 <script>
 import { useData } from 'vitepress'
+import MaterialButton from './MaterialButton.vue'
 
 // Palette di colori Material Design (500 series)
 const MATERIAL_COLORS = [
@@ -43,6 +57,9 @@ const MATERIAL_COLORS = [
 
 export default {
   name: 'MaterialUserAvatar',
+  components: {
+    MaterialButton
+  },
   props: {
     nickname: {
       type: String,
@@ -56,9 +73,13 @@ export default {
     clickable: {
       type: Boolean,
       default: false
+    },
+    deletable: {
+      type: Boolean,
+      default: false
     }
   },
-  emits: ['avatar-click'],
+  emits: ['avatar-click', 'delete'],
   setup() {
     const { isDark } = useData()
     return { isDark }
@@ -121,6 +142,11 @@ export default {
       if (this.clickable) {
         this.$emit('avatar-click', this.nickname)
       }
+    },
+    
+    handleDelete(event) {
+      event && event.stopPropagation() // Previene il bubbling dell'evento
+      this.$emit('delete', this.nickname)
     }
   }
 }
@@ -134,6 +160,12 @@ export default {
   justify-content: start;
   padding: 16px;
   font-family: 'Roboto', sans-serif;
+  position: relative;
+}
+
+.avatar-container {
+  position: relative;
+  display: inline-block;
 }
 
 .avatar-circle {
@@ -155,19 +187,12 @@ export default {
   user-select: none;
 }
 
-/*
-.avatar-nickname {
-  margin-top: 12px;
-  font-size: 16px;
-  font-weight: 500;
-  color: var(--vp-c-text-1);
-  text-align: center;
-  max-width: 100px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+.delete-button {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  z-index: 10;
 }
-*/
 
 .avatar-nickname {
   margin-top: 12px;
@@ -179,7 +204,6 @@ export default {
   word-break: break-word;
 }
 
-
 /* Stile per dark mode */
 .dark-mode .avatar-nickname {
   color: var(--vp-c-text-2);
@@ -190,6 +214,11 @@ export default {
   .avatar-nickname {
     font-size: 14px;
     max-width: 80px;
+  }
+  
+  .delete-button {
+    top: -6px;
+    right: -6px;
   }
 }
 </style>

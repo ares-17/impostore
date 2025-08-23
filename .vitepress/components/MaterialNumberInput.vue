@@ -17,7 +17,7 @@
         <!-- Input numerico -->
         <input type="number" :value="modelValue" @input="handleInput($event)" @focus="isFocused = true"
           @blur="isFocused = false" :min="min" :max="max" :placeholder="isFocused ? placeholder : ''"
-          class="number-input" :disabled="disabled" />
+          class="number-input" :disabled="disabled || disableOnlyInput" />
       </div>
     </div>
 
@@ -63,6 +63,10 @@ export default {
     disabled: {
       type: Boolean,
       default: false
+    },
+    disableOnlyInput: {
+      type: Boolean,
+      default: true
     },
     step: {
       type: Number,
@@ -161,6 +165,8 @@ export default {
 
 
 .number-input {
+  width: 100%;
+  text-align: start;
   font-size: 16px;
   color: var(--vp-c-text-1);
   background: transparent;

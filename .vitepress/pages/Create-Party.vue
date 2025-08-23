@@ -1,37 +1,38 @@
 <template>
   <div class="create-party-page" :class="{ 'dark-mode': isDark }">
     <div class="page-container">
-      <h1 class="page-title">Crea Nuova Partita</h1>
+      <h1 class="page-title">Crea Nuova Partita 🎉</h1>
       
       <!-- Sezione Giocatori -->
-      <div class="section">
+      <div>
         <h2 class="section-title">Giocatori</h2>
         
-        <div class="users-list">
-          <MaterialUserEdit
-            v-for="(user, index) in users"
+        <!-- Lista degli avatar dei giocatori esistenti -->
+        <div class="avatars-grid">
+          <MaterialUserAvatar
+            v-for="(user, index) in avatars"
             :key="index"
-            v-model="users[index]"
-            :index="index"
-            :deletable="users.length > 1"
-            @delete-user="deleteUser"
-            @update:modelValue="saveToStorage"
+            :nickname="user"
+            :size="60"
+            :clickable="false"
+            :deletable="true"
+            @delete="removeUser(index)"
           />
         </div>
         
-        <div class="add-user-button">
-          <MaterialButton
-            icon="PLUS"
-            color-scheme="PRIMARY"
-            size="medium"
-            @click="addUser"
+        <!-- Input per aggiungere un nuovo giocatore -->
+        <div class="add-user-section">
+          <MaterialAddUser
+            v-model="newUser"
+            :index="avatars.length"
+            :deletable="false"
+            @add-user="addNewUser"
           />
-          <span class="add-user-label">Aggiungi giocatore</span>
         </div>
       </div>
       
       <!-- Sezione Impostori -->
-      <div class="section">
+      <div>
         <h2 class="section-title">Impostori</h2>
         
         <MaterialNumberInput
@@ -45,9 +46,8 @@
       </div>
       
       <!-- Bottone di creazione -->
-      <div class="create-button-section w-full">
+      <div class="create-button-section">
         <MaterialTextButton
-          class="flex-grow"
           text="Crea Partita"
           color-scheme="primary"
           :disabled="!isFormValid"
@@ -67,18 +67,18 @@
 
 <script>
 import { useData } from 'vitepress'
-import MaterialUserEdit from '../components/MaterialUserEdit.vue'
+import MaterialUserAvatar from '../components/MaterialUserAvatar.vue'
+import MaterialAddUser from '../components/MaterialAddUser.vue'
 import MaterialNumberInput from '../components/MaterialNumberInput.vue'
-import MaterialButton from '../components/MaterialButton.vue'
 import MaterialTextButton from '../components/MaterialTextButton.vue'
 import MaterialToast from '../components/MaterialToast.vue'
 
 export default {
   name: 'CreatePartyPage',
   components: {
-    MaterialUserEdit,
+    MaterialUserAvatar,
+    MaterialAddUser,
     MaterialNumberInput,
-    MaterialButton,
     MaterialTextButton,
     MaterialToast
   },
@@ -88,36 +88,27 @@ export default {
   },
   data() {
     return {
-      users: [''],
+      avatars: [], // Lista dei giocatori già aggiunti
+      newUser: '', // Nuovo giocatore da aggiungere
       impostorsCount: 1,
       showSuccessToast: false
     }
   },
   computed: {
-    // Calcola il numero massimo di impostori in base al numero di giocatori
+    // Calcola il numero massimo di impostori (sempre minore del numero di giocatori)
     maxImpostors() {
-      if (this.users.length < 4) return 1
-      if (this.users.length < 7) return 2
-      return Math.floor(this.users.length / 3)
+      return Math.max(1, this.avatars.length - 1) // Almeno 1, massimo n-1 giocatori
     },
     
     // Verifica se il form è valido
     isFormValid() {
       // Almeno 4 giocatori
-      if (this.users.length < 4) return false
-      
-      // Tutti i giocatori devono avere un nickname
-      if (this.users.some(user => !user.trim())) return false
+      if (this.avatars.length < 4) return false
       
       // Il numero di impostori deve essere valido
-      if (this.impostorsCount < 1 || this.impostorsCount > this.maxImpostors) return false
+      if (this.impostorsCount < 1 || this.impostorsCount >= this.avatars.length) return false
       
       return true
-    },
-    
-    // Filtra i nicknames validi
-    validUsers() {
-      return this.users.filter(user => user.trim())
     }
   },
   watch: {
@@ -133,16 +124,15 @@ export default {
     this.loadFromStorage()
   },
   methods: {
-    // Aggiunge un nuovo giocatore
-    addUser() {
-      this.users.push('')
+    removeUser(index) {
+      this.avatars.splice(index, 1)
       this.saveToStorage()
     },
-    
-    // Rimuove un giocatore
-    deleteUser(index) {
-      if (this.users.length > 1) {
-        this.users.splice(index, 1)
+    // Aggiunge un nuovo giocatore dalla input
+    addNewUser() {
+      if (this.newUser.trim()) {
+        this.avatars.push(this.newUser.trim())
+        this.newUser = ''
         this.saveToStorage()
       }
     },
@@ -153,7 +143,7 @@ export default {
       
       // Salva i dati della partita
       const partyData = {
-        users: this.validUsers,
+        users: this.avatars,
         impostors: this.impostorsCount,
         createdAt: new Date().toISOString()
       }
@@ -173,7 +163,7 @@ export default {
     
     // Salva i nicknames nella sessionStorage
     saveToStorage() {
-      sessionStorage.setItem('savedNicknames', JSON.stringify(this.validUsers))
+      sessionStorage.setItem('savedNicknames', JSON.stringify(this.avatars))
     },
     
     // Carica i nicknames dalla sessionStorage
@@ -183,7 +173,7 @@ export default {
         if (savedNicknames) {
           const nicknames = JSON.parse(savedNicknames)
           if (nicknames.length > 0) {
-            this.users = nicknames
+            this.avatars = nicknames
           }
         }
       } catch (e) {
@@ -195,6 +185,10 @@ export default {
 </script>
 
 <style scoped>
+.material-button.primary{
+  width: 100%;
+}
+
 .create-party-page {
   min-height: 100vh;
   padding: 24px;
@@ -215,7 +209,6 @@ export default {
   margin-bottom: 32px;
 }
 
-
 .section-title {
   font-size: 20px;
   font-weight: 500;
@@ -223,19 +216,15 @@ export default {
   margin-bottom: 16px;
 }
 
-.users-list {
-  margin-bottom: 16px;
+.avatars-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
 }
 
-.add-user-button {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.add-user-label {
-  color: var(--vp-c-text-2);
-  font-size: 14px;
+.add-user-section {
+  margin-top: 16px;
 }
 
 .hint {
@@ -270,6 +259,11 @@ export default {
   
   .section {
     padding: 16px;
+  }
+  
+  .avatars-grid {
+    grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+    gap: 12px;
   }
 }
 </style>
