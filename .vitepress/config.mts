@@ -15,6 +15,9 @@ export default defineConfig({
   },
   appearance: 'dark',
   themeConfig: {
+    footer: {
+      message: 'Gentilmente offerto da Alessandro Schiavo',
+    },
     // https://vitepress.dev/reference/default-theme-config
     nav: [
       { text: 'Create Party', link: '/create-party' },
