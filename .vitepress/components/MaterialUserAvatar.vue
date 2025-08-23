@@ -5,6 +5,7 @@
         class="avatar-circle" 
         :style="circleStyle"
         @click="handleClick"
+        :class="{ disabled: !clickable }"
       >
         <span class="avatar-initials" :style="textStyle">
           {{ initials }}
@@ -153,6 +154,20 @@ export default {
 </script>
 
 <style scoped>
+.avatar-circle.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+  background-color: grey !important;
+}
+
+.avatar-circle.disabled:hover {
+  box-shadow: none;
+  transform: none;
+}
+
+
 .material-user-avatar {
   display: flex;
   flex-direction: column;

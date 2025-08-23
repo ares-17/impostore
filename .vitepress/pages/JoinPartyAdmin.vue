@@ -44,6 +44,7 @@
       v-model:show="showRevealModal"
       :title="`Ruolo di ${selectedPlayer}`"
       @confirm="closeRevealModal"
+      :show-cancel="false"
     >
       <div class="reveal-content">
         <div v-if="isImpostor(selectedPlayer)" class="impostor-reveal">
@@ -251,6 +252,10 @@ export default {
 </script>
 
 <style scoped>
+.material-button {
+  width: 100%;
+}
+
 .join-party-admin-page {
   min-height: 100vh;
   padding: 24px;

@@ -18,6 +18,7 @@
         <div class="modal-footer">
           <slot name="footer">
             <MaterialTextButton
+              v-if="showCancel"
               text="Cancel"
               color-scheme="outline"
               @click="closeModal"
@@ -44,6 +45,10 @@ export default {
     MaterialTextButton
   },
   props: {
+    showCancel: {
+      type: Boolean,
+      default: true
+    },
     show: {
       type: Boolean,
       default: false
@@ -107,8 +112,11 @@ export default {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 24px 24px 16px;
+  padding: 0px 24px 16px;
   border-bottom: 1px solid var(--vp-c-border);
+  h2 {
+    border: none;
+  }
 }
 
 .modal-title {
@@ -116,6 +124,7 @@ export default {
   font-size: 20px;
   font-weight: 500;
   color: var(--vp-c-text-1);
+
 }
 
 .modal-close {
@@ -123,7 +132,7 @@ export default {
   border: none;
   cursor: pointer;
   color: var(--vp-c-text-2);
-  padding: 4px;
+  padding-top: 24px;
   border-radius: 4px;
   transition: background-color 0.2s ease;
 }
@@ -140,7 +149,7 @@ export default {
 
 .modal-footer {
   padding: 16px 24px;
-  border-top: 1px solid var(--vp-c-border);
+  border-top: none;
   display: flex;
   justify-content: flex-end;
   gap: 12px;
