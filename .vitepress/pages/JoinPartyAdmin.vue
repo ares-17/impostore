@@ -1,11 +1,11 @@
 <template>
   <div class="create-party-page" :class="{ 'dark-mode': isDark }">
     <div class="page-container">
-      <h1 class="page-title">Crea Nuova Partita 🎉</h1>
+      <h1 class="page-title">Divertiti con i tuoi amici! </h1>
       
       <!-- Sezione Giocatori -->
       <div >
-        <h2 class="section-title">Giocatori</h2>
+        <h2 class="section-title">Giocatori presenti</h2>
         
         <!-- Lista degli avatar dei giocatori esistenti -->
         <div class="avatars-grid">
@@ -14,73 +14,22 @@
             :key="index"
             :nickname="user"
             :size="60"
-            :clickable="false"
-            :deletable="!gameCode"
-            @delete="removeUser(index)"
+            :clickable="true"
           />
         </div>
-        
-        <!-- Input per aggiungere un nuovo giocatore -->
-        <div class="add-user-section" v-if="!gameCode">
-          <MaterialAddUser
-            v-model="newUser"
-            :index="avatars.length"
-            :deletable="false"
-            @add-user="addNewUser"
-          />
-        </div>
-      </div>
-      
-      <!-- Sezione Impostori -->
-      <div v-if="!gameCode">
-        <h2 class="section-title">Impostori</h2>
-        
-        <MaterialNumberInput
-          v-model="impostorsCount"
-          label="Numero di impostori"
-          placeholder="Inserisci numero impostori"
-          :max="maxImpostors"
-          :min="1"
-          :step="1"
-        />
+
       </div>
       
       <!-- Bottone di creazione -->
-      <div v-if="!gameCode" class="create-button-section">
+      <div class="create-button-section">
         <MaterialTextButton
           text="Crea Partita 🎮"
-          color-scheme="primary"
-          :disabled="!isFormValid"
+          color-scheme="outline"
           @click="createParty"
         />
       </div>
-      
-      <!-- Mostra il codice partita dopo la creazione -->
-      <div v-if="gameCode" class="game-code-section">
-        <h3>Codice Partita</h3>
-        <div class="code-container">
-          <code class="game-code">{{ gameCode }}</code>
-          <MaterialButton
-            icon="COPY"
-            color-scheme="SECONDARY"
-            size="small"
-            @click="copyGameCode"
-          />
-        </div>
-        <p class="hint">Condividi questo codice con i giocatori per farli unire alla partita</p>
-      </div>
     </div>
     
-      <!-- Bottone di accesso al gioco -->
-      <div v-if="gameCode" class="join-party">
-        <MaterialTextButton
-          text="Accedi al party 🎮"
-          color-scheme="primary"
-          :disabled="!isFormValid"
-          @click="joinParty"
-        />
-      </div>
-
     <!-- Toast di successo -->
     <MaterialToast
       v-model:show="showSuccessToast"
@@ -99,7 +48,6 @@ import MaterialTextButton from '../components/MaterialTextButton.vue'
 import MaterialToast from '../components/MaterialToast.vue'
 import MaterialButton from '../components/MaterialButton.vue'
 import { generateGameCode } from '../utils/gameCode'
-import { withBase } from 'vitepress'
 
 export default {
   name: 'CreatePartyPage',
@@ -113,12 +61,7 @@ export default {
   },
   setup() {
     const { isDark } = useData()
-
-    const joinParty = () => {
-      window.location.href = withBase('/join-party');
-    };
-
-    return { isDark, joinParty }
+    return { isDark }
   },
   data() {
     return {
@@ -128,7 +71,7 @@ export default {
       showSuccessToast: false,
       toastMessage: '',
       toastType: 'success',
-      gameCode: null,
+      gameCode: null
     }
   },
   computed: {
@@ -222,7 +165,7 @@ export default {
 </script>
 
 <style scoped>
-.material-button.primary{
+.material-button{
   width: 100%;
   margin-top: 2rem;
 }
@@ -232,7 +175,6 @@ export default {
   border-radius: 8px;
   padding: 24px;
   margin-top: 24px;
-  border: 1px solid black;
 }
 
 .game-code-section h3 {
