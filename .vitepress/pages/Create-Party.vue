@@ -4,7 +4,7 @@
       <h1 class="page-title">Crea Nuova Partita 🎉</h1>
       
       <!-- Sezione Giocatori -->
-      <div>
+      <div >
         <h2 class="section-title">Giocatori</h2>
         
         <!-- Lista degli avatar dei giocatori esistenti -->
@@ -54,13 +54,28 @@
           @click="createParty"
         />
       </div>
+      
+      <!-- Mostra il codice partita dopo la creazione -->
+      <div v-if="gameCode" class="game-code-section">
+        <h3>Codice Partita</h3>
+        <div class="code-container">
+          <code class="game-code">{{ gameCode }}</code>
+          <MaterialButton
+            icon="COPY"
+            color-scheme="SECONDARY"
+            size="small"
+            @click="copyGameCode"
+          />
+        </div>
+        <p class="hint">Condividi questo codice con i giocatori per farli unire alla partita</p>
+      </div>
     </div>
     
     <!-- Toast di successo -->
     <MaterialToast
       v-model:show="showSuccessToast"
-      message="Partita creata con successo!"
-      type="success"
+      :message="toastMessage"
+      :type="toastType"
     />
   </div>
 </template>
@@ -72,6 +87,8 @@ import MaterialAddUser from '../components/MaterialAddUser.vue'
 import MaterialNumberInput from '../components/MaterialNumberInput.vue'
 import MaterialTextButton from '../components/MaterialTextButton.vue'
 import MaterialToast from '../components/MaterialToast.vue'
+import MaterialButton from '../components/MaterialButton.vue'
+import { generateGameCode } from '../utils/gameCode'
 
 export default {
   name: 'CreatePartyPage',
@@ -80,7 +97,8 @@ export default {
     MaterialAddUser,
     MaterialNumberInput,
     MaterialTextButton,
-    MaterialToast
+    MaterialToast,
+    MaterialButton
   },
   setup() {
     const { isDark } = useData()
@@ -88,47 +106,29 @@ export default {
   },
   data() {
     return {
-      avatars: [], // Lista dei giocatori già aggiunti
-      newUser: '', // Nuovo giocatore da aggiungere
+      avatars: [],
+      newUser: '',
       impostorsCount: 1,
-      showSuccessToast: false
+      showSuccessToast: false,
+      toastMessage: '',
+      toastType: 'success',
+      gameCode: null
     }
   },
   computed: {
-    // Calcola il numero massimo di impostori (sempre minore del numero di giocatori)
     maxImpostors() {
-      return Math.max(1, this.avatars.length - 1) // Almeno 1, massimo n-1 giocatori
+      return Math.max(1, this.avatars.length - 1)
     },
-    
-    // Verifica se il form è valido
     isFormValid() {
-      // Almeno 4 giocatori
-      if (this.avatars.length < 4) return false
-      
-      // Il numero di impostori deve essere valido
-      if (this.impostorsCount < 1 || this.impostorsCount >= this.avatars.length) return false
-      
-      return true
-    }
-  },
-  watch: {
-    // Aggiorna il numero di impostori se supera il massimo consentito
-    maxImpostors(newMax) {
-      if (this.impostorsCount > newMax) {
-        this.impostorsCount = newMax
-      }
+      return this.avatars.length >= 3 && 
+             this.impostorsCount >= 1 && 
+             this.impostorsCount < this.avatars.length
     }
   },
   mounted() {
-    // Carica i dati dalla sessionStorage se presenti
     this.loadFromStorage()
   },
   methods: {
-    removeUser(index) {
-      this.avatars.splice(index, 1)
-      this.saveToStorage()
-    },
-    // Aggiunge un nuovo giocatore dalla input
     addNewUser() {
       if (this.newUser.trim()) {
         this.avatars.push(this.newUser.trim())
@@ -136,37 +136,57 @@ export default {
         this.saveToStorage()
       }
     },
-    
-    // Crea la partita
-    createParty() {
+    removeUser(index) {
+      this.avatars.splice(index, 1)
+      this.saveToStorage()
+      
+      // Aggiorna il numero di impostori se necessario
+      if (this.impostorsCount >= this.avatars.length) {
+        this.impostorsCount = Math.max(1, this.avatars.length - 1)
+      }
+    },
+    async createParty() {
       if (!this.isFormValid) return
       
-      // Salva i dati della partita
-      const partyData = {
-        users: this.avatars,
-        impostors: this.impostorsCount,
-        createdAt: new Date().toISOString()
+      try {
+        // Genera il codice partita
+        const { code, config } = generateGameCode(
+          this.avatars,
+          this.impostorsCount,
+          `Partita del ${new Date().toLocaleDateString()}`
+        )
+        
+        // Salva i dati della partita
+        sessionStorage.setItem('currentParty', JSON.stringify(config))
+        this.gameCode = code
+        
+        // Mostra il toast di successo
+        this.toastMessage = 'Partita creata con successo!'
+        this.toastType = 'success'
+        this.showSuccessToast = true
+        
+      } catch (error) {
+        // Mostra il toast di errore
+        this.toastMessage = `Errore: ${error.message}`
+        this.toastType = 'error'
+        this.showSuccessToast = true
       }
-      
-      // Salva nella sessionStorage
-      sessionStorage.setItem('currentParty', JSON.stringify(partyData))
-      
-      // Mostra il toast di successo
-      this.showSuccessToast = true
-      
-      // Reindirizza alla pagina della partita dopo 2 secondi
-      setTimeout(() => {
-        // Qui puoi reindirizzare alla pagina della partita
-        console.log('Reindirizzamento alla partita...', partyData)
-      }, 2000)
     },
-    
-    // Salva i nicknames nella sessionStorage
+    async copyGameCode() {
+      try {
+        await navigator.clipboard.writeText(this.gameCode)
+        this.toastMessage = 'Codice copiato negli appunti!'
+        this.toastType = 'success'
+        this.showSuccessToast = true
+      } catch (error) {
+        this.toastMessage = 'Impossibile copiare il codice'
+        this.toastType = 'error'
+        this.showSuccessToast = true
+      }
+    },
     saveToStorage() {
       sessionStorage.setItem('savedNicknames', JSON.stringify(this.avatars))
     },
-    
-    // Carica i nicknames dalla sessionStorage
     loadFromStorage() {
       try {
         const savedNicknames = sessionStorage.getItem('savedNicknames')
@@ -187,31 +207,37 @@ export default {
 <style scoped>
 .material-button.primary{
   width: 100%;
+  margin-top: 2rem;
 }
 
-.create-party-page {
-  min-height: 100vh;
+.game-code-section {
+  background-color: var(--vp-c-bg-soft);
+  border-radius: 8px;
   padding: 24px;
-  background-color: var(--vp-c-bg);
-  transition: background-color 0.3s ease;
+  margin-top: 24px;
 }
 
-.page-container {
-  max-width: 600px;
-  margin: 0 auto;
-}
-
-.page-title {
-  font-size: 28px;
-  font-weight: 600;
+.game-code-section h3 {
+  margin-top: 0;
+  margin-bottom: 16px;
   color: var(--vp-c-text-1);
-  text-align: center;
-  margin-bottom: 32px;
 }
 
-.section-title {
-  font-size: 20px;
-  font-weight: 500;
+.code-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background-color: var(--vp-c-bg);
+  padding: 12px;
+  border-radius: 4px;
+  border: 1px solid var(--vp-c-border);
+}
+
+.game-code {
+  flex-grow: 1;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 14px;
+  word-break: break-all;
   color: var(--vp-c-text-1);
   margin-bottom: 16px;
 }
@@ -231,39 +257,5 @@ export default {
   font-size: 14px;
   color: var(--vp-c-text-2);
   margin-top: 8px;
-}
-
-.create-button-section {
-  margin-top: 32px;
-}
-
-/* Dark mode adjustments */
-.dark-mode .create-party-page {
-  background-color: var(--vp-c-bg-soft-up);
-}
-
-.dark-mode .section {
-  background-color: var(--vp-c-bg-soft);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-}
-
-/* Responsive */
-@media (max-width: 640px) {
-  .create-party-page {
-    padding: 16px;
-  }
-  
-  .page-title {
-    font-size: 24px;
-  }
-  
-  .section {
-    padding: 16px;
-  }
-  
-  .avatars-grid {
-    grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
-    gap: 12px;
-  }
 }
 </style>
