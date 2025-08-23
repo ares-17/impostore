@@ -51,6 +51,45 @@ outline: deep
     />
   </div>
 </div>
+
+<MaterialTextButton
+  text="Click me"
+  color-scheme="primary"
+  @click="showModal = true"
+/>
+
+<MaterialModal
+  v-model:show="showModal"
+  title="Example Modal"
+  @confirm="handleConfirm"
+  @close="handleClose"
+>
+  <p>This is the modal content. You can put any components here.</p>
+</MaterialModal>
+
+<div class="toast-buttons">
+  <MaterialTextButton
+    text="Show Success"
+    color-scheme="primary"
+    @click="showToast('success', 'Operation completed successfully!')"
+  />
+  <MaterialTextButton
+    text="Show Warning"
+    color-scheme="secondary"
+    @click="showToast('warning', 'This is a warning message.')"
+  />
+  <MaterialTextButton
+    text="Show Error"
+    color-scheme="outline"
+    @click="showToast('error', 'An error occurred!')"
+  />
+</div>
+
+<MaterialToast
+  v-model:show="toastVisible"
+  :message="toastMessage"
+  :type="toastType"
+/>
 <div class="option-creator">
 
   <div class="current-options">
@@ -89,6 +128,27 @@ const addOption = () => {
     })
     newOptionText.value = ''
   }
+}
+
+const showModal = ref(false)
+
+const handleConfirm = () => {
+  console.log('Modal confirmed!')
+  showModal.value = false
+}
+
+const handleClose = () => {
+  console.log('Modal closed!')
+}
+
+const toastVisible = ref(false)
+const toastMessage = ref('')
+const toastType = ref('success')
+
+const showToast = (type, message) => {
+  toastType.value = type
+  toastMessage.value = message
+  toastVisible.value = true
 }
 </script>
 

@@ -10,6 +10,9 @@ import MaterialTextInput from '../components/MaterialTextInput.vue'
 import MaterialUserEdit from '../components/MaterialUserEdit.vue'
 import MaterialNumberInput from '../components/MaterialNumberInput.vue'
 import MaterialUserAvatar from '../components/MaterialUserAvatar.vue'
+import MaterialTextButton from '../components/MaterialTextButton.vue'
+import MaterialModal from '../components/MaterialModal.vue'
+import MaterialToast from '../components/MaterialToast.vue'
 
 export default {
   extends: DefaultTheme,
@@ -24,6 +27,9 @@ export default {
     app.component('MaterialTextInput', MaterialTextInput),
     app.component('MaterialUserEdit', MaterialUserEdit),
     app.component('MaterialNumberInput', MaterialNumberInput),
-    app.component('MaterialUserAvatar', MaterialUserAvatar)
+    app.component('MaterialUserAvatar', MaterialUserAvatar),
+    app.component('MaterialTextButton', MaterialTextButton),
+    app.component('MaterialModal', MaterialModal),
+    app.component('MaterialToast', MaterialToast)
   }
 } satisfies Theme

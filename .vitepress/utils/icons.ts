@@ -65,3 +65,9 @@ export const COLOR_SCHEMES = {
 
 // Tipo per lo schema colore
 export type ColorScheme = keyof typeof COLOR_SCHEMES;
+
+export const TOAST_TYPES = {
+  SUCCESS: 'success',
+  WARNING: 'warning',
+  ERROR: 'error'
+} as const;

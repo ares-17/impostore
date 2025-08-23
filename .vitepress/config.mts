@@ -12,6 +12,7 @@ export default defineConfig({
       postcss: './postcss.config.js'
     }
   },
+  appearance: 'dark',
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     nav: [
