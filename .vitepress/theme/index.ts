@@ -9,6 +9,7 @@ import MaterialButton from '../components/MaterialButton.vue'
 import MaterialTextInput from '../components/MaterialTextInput.vue'
 import MaterialUserEdit from '../components/MaterialUserEdit.vue'
 import MaterialNumberInput from '../components/MaterialNumberInput.vue'
+import MaterialUserAvatar from '../components/MaterialUserAvatar.vue'
 
 export default {
   extends: DefaultTheme,
@@ -22,6 +23,7 @@ export default {
     app.component('MaterialButton', MaterialButton),
     app.component('MaterialTextInput', MaterialTextInput),
     app.component('MaterialUserEdit', MaterialUserEdit),
-    app.component('MaterialNumberInput', MaterialNumberInput)
+    app.component('MaterialNumberInput', MaterialNumberInput),
+    app.component('MaterialUserAvatar', MaterialUserAvatar)
   }
 } satisfies Theme

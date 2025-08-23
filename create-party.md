@@ -20,6 +20,37 @@ outline: deep
 <div class="current-value">
   Valore attuale: {{ quantity }}
 </div>
+
+<div class="user-avatars-demo">
+  <h2>Avatar Utenti</h2>
+  
+  <div class="avatars-grid">
+    <MaterialUserAvatar
+      nickname="Mario Rossi"
+      :size="72"
+      :clickable="true"
+      @avatar-click="handleAvatarClick"
+    />
+    <MaterialUserAvatar
+      nickname="Luigi Verdi"
+      :size="72"
+    />
+    <MaterialUserAvatar
+      nickname="Anna Bianchi"
+      :size="72"
+      :clickable="true"
+      @avatar-click="handleAvatarClick"
+    />
+    <MaterialUserAvatar
+      nickname="GP"
+      :size="72"
+    />
+        <MaterialUserAvatar
+      nickname="GP"
+      :size="72"
+    />
+  </div>
+</div>
 <div class="option-creator">
 
   <div class="current-options">
@@ -80,5 +111,18 @@ const addOption = () => {
 
 .current-options ul {
   margin-bottom: 0;
+}
+
+.user-avatars-demo {
+  padding: 24px;
+  text-align: center;
+}
+
+.avatars-grid {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  flex-wrap: wrap;
+  margin-top: 16px;
 }
 </style>
