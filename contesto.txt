@@ -1,0 +1,2824 @@
+===== FILE: ./index.md =====
+---
+# https://vitepress.dev/reference/default-theme-home-page
+layout: home
+
+hero:
+  name: "Impostore"
+  text: "A VitePress Site"
+  tagline: My great project tagline
+  actions:
+    - theme: brand
+      text: Create Party
+      link: /create-party
+    - theme: alt
+      text: Join Party
+      link: /join-party
+
+features:
+  - title: Feature A
+    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
+  - title: Feature B
+    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
+  - title: Feature C
+    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
+---
+
+
+
+===== FILE: ./.vitepress/theme/index.ts =====
+// https://vitepress.dev/guide/custom-theme
+import { h } from 'vue'
+import type { Theme } from 'vitepress'
+import DefaultTheme from 'vitepress/theme'
+import './style.css'
+import './tailwind.css'
+import MaterialDropdownFilled from '../components/MaterialDropdownFilled.vue'
+import MaterialButton from '../components/MaterialButton.vue'
+import MaterialTextInput from '../components/MaterialTextInput.vue'
+import MaterialUserEdit from '../components/MaterialUserEdit.vue'
+import MaterialNumberInput from '../components/MaterialNumberInput.vue'
+import MaterialUserAvatar from '../components/MaterialUserAvatar.vue'
+import MaterialTextButton from '../components/MaterialTextButton.vue'
+import MaterialModal from '../components/MaterialModal.vue'
+import MaterialToast from '../components/MaterialToast.vue'
+
+export default {
+  extends: DefaultTheme,
+  Layout: () => {
+    return h(DefaultTheme.Layout, null, {
+      // https://vitepress.dev/guide/extending-default-theme#layout-slots
+    })
+  },
+  enhanceApp({ app, router, siteData }) {
+    app.component('MaterialDropdownFilled', MaterialDropdownFilled),
+    app.component('MaterialButton', MaterialButton),
+    app.component('MaterialTextInput', MaterialTextInput),
+    app.component('MaterialUserEdit', MaterialUserEdit),
+    app.component('MaterialNumberInput', MaterialNumberInput),
+    app.component('MaterialUserAvatar', MaterialUserAvatar),
+    app.component('MaterialTextButton', MaterialTextButton),
+    app.component('MaterialModal', MaterialModal),
+    app.component('MaterialToast', MaterialToast)
+  }
+} satisfies Theme
+
+
+===== FILE: ./.vitepress/components/MaterialTextInput.vue =====
+<template>
+  <div class="material-text-input" :class="{ 'input-focused': isFocused, 'input-filled': modelValue, 'has-trailing': hasTrailing, 'dark-mode': isDark }">
+    <div class="input-field">
+      <label class="input-label" :class="{ 'label-active': isFocused || modelValue }">
+        {{ label }}
+      </label>
+      <input
+        :type="type"
+        :value="modelValue"
+        @input="$emit('update:modelValue', $event.target.value)"
+        @focus="isFocused = true"
+        @blur="isFocused = false"
+        :placeholder="isFocused ? placeholder : ''"
+        class="input-element"
+        :disabled="disabled"
+      />
+      
+      <!-- Slot per il componente trailing -->
+      <div v-if="hasTrailing" class="trailing-component">
+        <slot name="trailing"></slot>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+import { useData } from 'vitepress'
+
+export default {
+  name: 'MaterialTextInput',
+  props: {
+    modelValue: {
+      type: [String, Number],
+      default: ''
+    },
+    label: {
+      type: String,
+      default: 'Etichetta'
+    },
+    placeholder: {
+      type: String,
+      default: ''
+    },
+    type: {
+      type: String,
+      default: 'text',
+      validator: (value) => ['text', 'password', 'email', 'number'].includes(value)
+    },
+    disabled: {
+      type: Boolean,
+      default: false
+    }
+  },
+  emits: ['update:modelValue'],
+  setup() {
+    const { isDark } = useData()
+    return { isDark }
+  },
+  data() {
+    return {
+      isFocused: false
+    }
+  },
+  computed: {
+    hasTrailing() {
+      return !!this.$slots.trailing
+    }
+  }
+}
+</script>
+
+<style scoped>
+.material-text-input {
+  position: relative;
+  margin: 16px 0;
+  font-family: 'Roboto', sans-serif;
+  max-width: 100%;
+}
+
+.input-field {
+  position: relative;
+  border: 1px solid var(--vp-c-border);
+  border-radius: 4px;
+  padding: 22px 12px 8px;
+  background-color: var(--vp-c-bg-soft);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+}
+
+.input-field:hover {
+  border-color: var(--vp-c-brand);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+}
+
+.input-focused .input-field {
+  border-color: var(--vp-c-brand);
+  border-width: 1px;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.2);
+}
+
+.input-filled .input-field {
+  border-color: var(--vp-c-brand);
+}
+
+.input-label {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  color: var(--vp-c-text-2);
+  font-size: 16px;
+  font-weight: 400;
+  pointer-events: none;
+  transition: all 0.3s ease;
+  transform-origin: top left;
+  background-color: var(--vp-c-bg-soft);
+  padding: 0 4px;
+  border-radius: 2px;
+}
+
+.label-active {
+  transform: translateY(-18px) scale(0.85);
+  color: var(--vp-c-brand);
+  background-color: var(--vp-c-bg);
+  font-weight: 500;
+}
+
+.input-element {
+  font-size: 16px;
+  color: var(--vp-c-text-1);
+  background: transparent;
+  border: none;
+  outline: none;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  flex: 1;
+}
+
+.input-element:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.trailing-component {
+  margin-left: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Stile per dark mode */
+.dark-mode .input-field {
+  background-color: var(--vp-c-bg-soft-up);
+  border-color: var(--vp-c-divider);
+}
+
+.dark-mode .input-label {
+  background-color: var(--vp-c-bg-soft-up);
+}
+
+.dark-mode .label-active {
+  background-color: var(--vp-c-bg);
+}
+
+/* Supporto per schermi piccoli */
+@media (max-width: 480px) {
+  .input-label {
+    font-size: 14px;
+  }
+  
+  .input-element {
+    font-size: 14px;
+  }
+}
+</style>
+
+===== FILE: ./.vitepress/components/MaterialDropdownFilled.vue =====
+<template>
+  <div class="material-dropdown-filled" :class="{ 'dropdown-open': isOpen, 'dropdown-filled': selectedValue, 'dark-mode': isDark }">
+    <div class="dropdown-field" @click="toggleDropdown">
+      <label class="dropdown-label" :class="{ 'label-active': isOpen || selectedValue }">
+        {{ label }}
+      </label>
+      <div class="selected-value">{{ selectedLabel || placeholder }}</div>
+      <div class="dropdown-arrow" :class="{ 'arrow-active': isOpen }">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+          <path d="M7 10L12 15L17 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+    </div>
+    
+    <transition name="dropdown-transition">
+      <div v-if="isOpen && filteredOptions.length > 0" class="dropdown-menu">
+        <div class="menu-content">
+          <div 
+            v-for="option in filteredOptions" 
+            :key="option.value" 
+            class="menu-item"
+            :class="{ 'menu-item-active': option.value === selectedValue }"
+            @click="selectOption(option)"
+          >
+            {{ option.label }}
+          </div>
+        </div>
+      </div>
+    </transition>
+
+    <!-- Messaggio per opzioni vuote -->
+    <transition name="dropdown-transition">
+      <div v-if="isOpen && filteredOptions.length === 0" class="dropdown-menu">
+        <div class="menu-content">
+          <div class="menu-item menu-item-empty">
+            Nessuna opzione disponibile
+          </div>
+        </div>
+      </div>
+    </transition>
+  </div>
+</template>
+
+<script>
+import { useData } from 'vitepress'
+
+export default {
+  name: 'MaterialDropdownFilled',
+  props: {
+    options: {
+      type: Array,
+      required: true,
+      default: () => [],
+      validator: (value) => {
+        return Array.isArray(value) && value.every(opt => 
+          opt && typeof opt === 'object' && 'label' in opt && 'value' in opt
+        )
+      }
+    },
+    placeholder: {
+      type: String,
+      default: 'Seleziona un\'opzione'
+    },
+    label: {
+      type: String,
+      default: 'Etichetta'
+    },
+    modelValue: {
+      type: [String, Number, Object],
+      default: null
+    }
+  },
+  emits: ['update:modelValue'],
+  setup() {
+    const { isDark } = useData()
+    return { isDark }
+  },
+  data() {
+    return {
+      isOpen: false,
+      selectedValue: this.modelValue
+    }
+  },
+  computed: {
+    selectedLabel() {
+      if (!this.selectedValue) return null
+      const selectedOption = this.filteredOptions.find(opt => opt.value === this.selectedValue)
+      return selectedOption ? selectedOption.label : null
+    },
+    
+    filteredOptions() {
+      // Filtra opzioni valide e rimuovi duplicati
+      return this.options
+        .filter(opt => opt && typeof opt === 'object' && opt.label && opt.value !== undefined)
+        .filter((opt, index, self) => 
+          self.findIndex(o => o.value === opt.value) === index
+        )
+    }
+  },
+  watch: {
+    modelValue(newValue) {
+      this.selectedValue = newValue
+    },
+    
+    options: {
+      immediate: true,
+      handler(newOptions) {
+        // Reset selected value se non è più presente nelle opzioni
+        if (this.selectedValue && newOptions.length > 0) {
+          const optionExists = newOptions.some(opt => opt.value === this.selectedValue)
+          if (!optionExists) {
+            this.selectedValue = null
+            this.$emit('update:modelValue', null)
+          }
+        }
+      }
+    }
+  },
+  mounted() {
+    document.addEventListener('click', this.handleClickOutside)
+    window.addEventListener('resize', this.handleResize)
+  },
+  beforeUnmount() {
+    document.removeEventListener('click', this.handleClickOutside)
+    window.removeEventListener('resize', this.handleResize)
+  },
+  methods: {
+    toggleDropdown(event) {
+      event.stopPropagation()
+      if (this.filteredOptions.length > 0) {
+        this.isOpen = !this.isOpen
+      }
+    },
+    
+    selectOption(option) {
+      if (!option || !option.value) return
+      
+      this.selectedValue = option.value
+      this.$emit('update:modelValue', option.value)
+      this.isOpen = false
+    },
+    
+    handleClickOutside(event) {
+      if (!this.$el.contains(event.target)) {
+        this.isOpen = false
+      }
+    },
+    
+    handleResize() {
+      if (window.innerWidth < 768 && this.isOpen) {
+        this.isOpen = false
+      }
+    }
+  }
+}
+</script>
+
+<style scoped>
+.material-dropdown-filled {
+  position: relative;
+  margin: 16px 0;
+  font-family: 'Roboto', sans-serif;
+  max-width: 100%;
+  min-height: 56px; /* Altezza minima per evitare layout shift */
+}
+
+.dropdown-field {
+  position: relative;
+  border: 1px solid var(--vp-c-border);
+  border-radius: 4px;
+  padding: 22px 12px 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background-color: var(--vp-c-bg-soft);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  min-height: 56px;
+  display: flex;
+  align-items: center;
+}
+
+.dropdown-field:hover {
+  border-color: var(--vp-c-brand);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+}
+
+.dropdown-open .dropdown-field {
+  border-color: var(--vp-c-brand);
+  border-width: 1px;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.2);
+}
+
+.dropdown-filled .dropdown-field {
+  border-color: var(--vp-c-brand);
+}
+
+.dropdown-label {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  color: var(--vp-c-text-2);
+  font-size: 16px;
+  font-weight: 400;
+  pointer-events: none;
+  transition: all 0.3s ease;
+  transform-origin: top left;
+  background-color: var(--vp-c-bg-soft);
+  padding: 0 4px;
+  border-radius: 2px;
+}
+
+.label-active {
+  transform: translateY(-18px) scale(0.85);
+  color: var(--vp-c-brand);
+  background-color: var(--vp-c-bg);
+  font-weight: 500;
+}
+
+.selected-value {
+  font-size: 16px;
+  color: var(--vp-c-text-1);
+  padding-right: 32px;
+  min-height: 24px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.dropdown-arrow {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--vp-c-text-2);
+  transition: transform 0.3s ease;
+  pointer-events: none;
+}
+
+.arrow-active {
+  transform: translateY(-50%) rotate(180deg);
+  color: var(--vp-c-brand);
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  width: 100%;
+  background: var(--vp-c-bg);
+  border: 1px solid var(--vp-c-border);
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  overflow: hidden;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.menu-content {
+  padding: 8px 0;
+}
+
+.menu-item {
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  font-size: 16px;
+  color: var(--vp-c-text-1);
+}
+
+.menu-item:hover {
+  background-color: var(--vp-c-default-soft);
+}
+
+.menu-item-active {
+  background-color: var(--vp-c-brand-soft);
+  color: var(--vp-c-brand);
+}
+
+.menu-item-empty {
+  cursor: default;
+  color: var(--vp-c-text-2);
+  font-style: italic;
+  text-align: center;
+}
+
+/* Transizioni */
+.dropdown-transition-enter-active,
+.dropdown-transition-leave-active {
+  transition: all 0.3s ease;
+  transform-origin: top center;
+}
+
+.dropdown-transition-enter-from,
+.dropdown-transition-leave-to {
+  opacity: 0;
+  transform: translateY(-10px) scale(0.95);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .dropdown-menu {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    max-width: 300px;
+    max-height: 60vh;
+    z-index: 1001;
+  }
+}
+
+/* Supporto per schermi molto piccoli */
+@media (max-width: 480px) {
+  .selected-value {
+    font-size: 14px;
+  }
+  
+  .dropdown-label {
+    font-size: 14px;
+  }
+  
+  .menu-item {
+    padding: 10px 14px;
+    font-size: 14px;
+  }
+}
+
+/* Stile per dark mode */
+.dark-mode .dropdown-field {
+  background-color: var(--vp-c-bg-soft-up);
+  border-color: var(--vp-c-divider);
+}
+
+.dark-mode .dropdown-label {
+  background-color: var(--vp-c-bg-soft-up);
+}
+
+.dark-mode .label-active {
+  background-color: var(--vp-c-bg);
+}
+
+.dark-mode .dropdown-menu {
+  border-color: var(--vp-c-divider);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+</style>
+
+===== FILE: ./.vitepress/components/MaterialButton.vue =====
+<template>
+  <button 
+    class="material-button" 
+    :class="{ 'dark-mode': isDark, 'button-disabled': disabled, [size]: true }"
+    @click="$emit('click')"
+    :disabled="disabled"
+    :style="buttonStyles"
+  >
+    <svg :width="iconSize" :height="iconSize" :viewBox="iconConfig.viewBox" fill="none">
+      <path :d="iconConfig.path" stroke="currentColor" :stroke-width="iconConfig.strokeWidth || 2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </button>
+</template>
+
+<script>
+import { useData } from 'vitepress'
+import { ICONS, COLOR_SCHEMES } from '../utils/icons'
+
+export default {
+  name: 'MaterialButton',
+  props: {
+    disabled: {
+      type: Boolean,
+      default: false
+    },
+    icon: {
+      type: String,
+      default: 'PLUS',
+      validator: (value) => Object.keys(ICONS).includes(value)
+    },
+    colorScheme: {
+      type: String,
+      default: 'PRIMARY',
+      validator: (value) => Object.keys(COLOR_SCHEMES).includes(value)
+    },
+    size: {
+      type: String,
+      default: 'medium',
+      validator: (value) => ['small', 'medium', 'large'].includes(value)
+    },
+    // Override per i colori (opzionale)
+    bgColor: {
+      type: String,
+      default: null
+    },
+    hoverBgColor: {
+      type: String,
+      default: null
+    },
+    iconColor: {
+      type: String,
+      default: null
+    },
+    hoverIconColor: {
+      type: String,
+      default: null
+    }
+  },
+  emits: ['click'],
+  setup() {
+    const { isDark } = useData()
+    return { isDark }
+  },
+  computed: {
+    iconConfig() {
+      return ICONS[this.icon] || ICONS.PLUS
+    },
+    iconSize() {
+      switch (this.size) {
+        case 'small': return 20
+        case 'large': return 28
+        default: return 24
+      }
+    },
+    buttonStyles() {
+      const scheme = COLOR_SCHEMES[this.colorScheme]
+      
+      return {
+        '--bg-color': this.bgColor || scheme.bg,
+        '--hover-bg-color': this.hoverBgColor || scheme.hoverBg,
+        '--icon-color': this.iconColor || scheme.icon,
+        '--hover-icon-color': this.hoverIconColor || scheme.hoverIcon
+      }
+    }
+  }
+}
+</script>
+
+<style scoped>
+.material-button {
+  border-radius: 50%;
+  background-color: var(--bg-color);
+  color: var(--icon-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Dimensioni */
+.material-button.small {
+  width: 32px;
+  height: 32px;
+}
+
+.material-button.medium {
+  width: 40px;
+  height: 40px;
+}
+
+.material-button.large {
+  width: 48px;
+  height: 48px;
+}
+
+/* Hover effects */
+.material-button:hover:not(.button-disabled) {
+  background-color: var(--hover-bg-color);
+  color: var(--hover-icon-color);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  transform: translateY(-2px);
+}
+
+.material-button:active:not(.button-disabled) {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.button-disabled {
+  background-color: var(--vp-c-text-3);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* Stile per dark mode */
+.dark-mode.material-button:not(.button-disabled) {
+  /* Eventuali aggiustamenti per dark mode */
+}
+
+.dark-mode.material-button:hover:not(.button-disabled) {
+  /* Eventuali aggiustamenti per dark mode */
+}
+</style>
+
+===== FILE: ./.vitepress/components/MaterialUserEdit.vue =====
+<template>
+    <div class="flex flex-row sm:flex-row sm:items-end gap-3 w-full items-center">
+        <div class="flex-grow sm:w-auto">
+            <MaterialTextInput
+                v-model="value"
+                label="Informazioni giocatore"
+                placeholder="Inserisci il nickname del giocatore"
+            />
+        </div>
+        <div class="mt-2 sm:mt-0 sm:ml-2 flex-shrink-0">
+            <MaterialButton
+                icon="PLUS"
+                color-scheme="PRIMARY"
+                size="medium"
+                @click="addItem"
+            />
+        </div>
+        <div class="mt-2 sm:mt-0 sm:ml-2 flex-shrink-0">
+            <MaterialButton
+                icon="MINUS"
+                color-scheme="DANGER"
+                size="medium"
+                @click="removeItem"
+            />
+        </div>
+    </div>
+</template>
+
+<script lang="ts" setup>
+import { ref, defineEmits } from 'vue';
+
+// Definizione delle variabili reattive
+const value = ref<string>('');
+
+// Definizione degli eventi emessi
+const emit = defineEmits<{
+    (e: 'add', option: string): void;
+    (e: 'remove', option: string): void;
+}>();
+
+// Funzione per aggiungere un nuovo giocatore
+const addItem = () => {
+    if (value.value.trim()) {
+        emit('add', value.value);
+    }
+};
+
+// Funzione per rimuovere un giocatore
+const removeItem = () => {
+    if (value.value.trim()) {
+        emit('remove', value.value);
+    }
+};
+</script>
+
+
+===== FILE: ./.vitepress/components/MaterialNumberInput.vue =====
+<template>
+  <div class="material-number-input flex flex-row sm:flex-row sm:items-end gap-3 w-full items-center"
+    :class="{ 'input-focused': isFocused, 'has-buttons': true, 'dark-mode': isDark }">
+    
+    <div class="mt-2 sm:mt-0 sm:ml-2 flex-shrink-0">
+          <!-- Bottone decremento -->
+    <MaterialButton icon="MINUS" color-scheme="SECONDARY" size="small" :disabled="modelValue <= min" @click="decrement"
+      class="number-button" />
+    </div>
+
+
+    <div class="flex-grow sm:w-auto">
+      <div class="input-field">
+        <label class="input-label" :class="{ 'label-active': isFocused || modelValue !== 0 }">
+          {{ label }}
+        </label>
+        <!-- Input numerico -->
+        <input type="number" :value="modelValue" @input="handleInput($event)" @focus="isFocused = true"
+          @blur="isFocused = false" :min="min" :max="max" :placeholder="isFocused ? placeholder : ''"
+          class="number-input" :disabled="disabled || disableOnlyInput" />
+      </div>
+    </div>
+
+    <div class="mt-2 sm:mt-0 sm:ml-2 flex-shrink-0">
+      <!-- Bottone incremento -->
+      <MaterialButton icon="PLUS" color-scheme="PRIMARY" size="small" :disabled="modelValue >= max" @click="increment"
+        class="number-button" />
+    </div>
+
+  </div>
+</template>
+
+<script>
+import { useData } from 'vitepress'
+import MaterialButton from './MaterialButton.vue'
+
+export default {
+  name: 'MaterialNumberInput',
+  components: {
+    MaterialButton
+  },
+  props: {
+    modelValue: {
+      type: Number,
+      default: 0
+    },
+    label: {
+      type: String,
+      default: 'Quantità'
+    },
+    placeholder: {
+      type: String,
+      default: 'Inserisci un numero'
+    },
+    max: {
+      type: Number,
+      default: 100
+    },
+    min: {
+      type: Number,
+      default: 0
+    },
+    disabled: {
+      type: Boolean,
+      default: false
+    },
+    disableOnlyInput: {
+      type: Boolean,
+      default: true
+    },
+    step: {
+      type: Number,
+      default: 1
+    }
+  },
+  emits: ['update:modelValue'],
+  setup() {
+    const { isDark } = useData()
+    return { isDark }
+  },
+  data() {
+    return {
+      isFocused: false
+    }
+  },
+  methods: {
+    handleInput(event) {
+      let value = parseInt(event.target.value)
+
+      // Gestione valori non validi
+      if (isNaN(value)) {
+        value = this.min
+      }
+
+      // Applica vincoli min/max
+      value = Math.max(this.min, Math.min(this.max, value))
+
+      this.$emit('update:modelValue', value)
+    },
+
+    increment() {
+      const newValue = Math.min(this.max, this.modelValue + this.step)
+      this.$emit('update:modelValue', newValue)
+    },
+
+    decrement() {
+      const newValue = Math.max(this.min, this.modelValue - this.step)
+      this.$emit('update:modelValue', newValue)
+    }
+  }
+}
+</script>
+
+<style scoped>
+.material-number-input {
+  position: relative;
+  margin: 16px 0;
+  font-family: 'Roboto', sans-serif;
+  max-width: 100%;
+}
+
+.input-field {
+  position: relative;
+  border: 1px solid var(--vp-c-border);
+  border-radius: 4px;
+  padding: 22px 12px 8px;
+  background-color: var(--vp-c-bg-soft);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.input-field:hover {
+  border-color: var(--vp-c-brand);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+}
+
+.input-focused .input-field {
+  border-color: var(--vp-c-brand);
+  border-width: 1px;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.2);
+}
+
+.input-label {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  color: var(--vp-c-text-2);
+  font-size: 16px;
+  font-weight: 400;
+  pointer-events: none;
+  transition: all 0.3s ease;
+  transform-origin: top left;
+  background-color: var(--vp-c-bg-soft);
+  padding: 0 4px;
+  border-radius: 2px;
+  z-index: 1;
+}
+
+.label-active {
+  transform: translateY(-18px) scale(0.85);
+  color: var(--vp-c-brand);
+  background-color: var(--vp-c-bg);
+  font-weight: 500;
+}
+
+
+.number-input {
+  width: 100%;
+  text-align: start;
+  font-size: 16px;
+  color: var(--vp-c-text-1);
+  background: transparent;
+  border: none;
+  outline: none;
+  text-align: center;
+  flex: 1;
+  padding: 4px 0;
+  min-width: 0;
+  -moz-appearance: textfield;
+}
+
+/* Rimuove le frecce dagli input number */
+.number-input::-webkit-outer-spin-button,
+.number-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.number-input:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.number-button {
+  flex-shrink: 0;
+}
+
+/* Stile per dark mode */
+.dark-mode .input-field {
+  background-color: var(--vp-c-bg-soft-up);
+  border-color: var(--vp-c-divider);
+}
+
+.dark-mode .input-label {
+  background-color: var(--vp-c-bg-soft-up);
+}
+
+.dark-mode .label-active {
+  background-color: var(--vp-c-bg);
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .input-label {
+    font-size: 14px;
+  }
+
+  .number-input {
+    font-size: 14px;
+  }
+
+  .input-content {
+    gap: 4px;
+  }
+}
+</style>
+
+===== FILE: ./.vitepress/components/MaterialUserAvatar.vue =====
+<template>
+  <div class="material-user-avatar" :class="{ 'dark-mode': isDark }">
+    <div class="avatar-container">
+      <div 
+        class="avatar-circle" 
+        :style="circleStyle"
+        @click="handleClick"
+      >
+        <span class="avatar-initials" :style="textStyle">
+          {{ initials }}
+        </span>
+      </div>
+      
+      <!-- Bottone di rimozione -->
+      <MaterialButton
+        v-if="deletable"
+        icon="MINUS"
+        color-scheme="DANGER"
+        size="small"
+        @click="handleDelete"
+        class="delete-button"
+      />
+    </div>
+    
+    <div class="avatar-nickname">
+      {{ nickname }}
+    </div>
+  </div>
+</template>
+
+<script>
+import { useData } from 'vitepress'
+import MaterialButton from './MaterialButton.vue'
+
+// Palette di colori Material Design (500 series)
+const MATERIAL_COLORS = [
+  '#F44336', // Red
+  '#E91E63', // Pink
+  '#9C27B0', // Purple
+  '#673AB7', // Deep Purple
+  '#3F51B5', // Indigo
+  '#2196F3', // Blue
+  '#03A9F4', // Light Blue
+  '#00BCD4', // Cyan
+  '#009688', // Teal
+  '#4CAF50', // Green
+  '#8BC34A', // Light Green
+  '#CDDC39', // Lime
+  '#FFEB3B', // Yellow
+  '#FFC107', // Amber
+  '#FF9800', // Orange
+  '#FF5722', // Deep Orange
+  '#795548', // Brown
+  '#9E9E9E', // Grey
+  '#607D8B'  // Blue Grey
+]
+
+export default {
+  name: 'MaterialUserAvatar',
+  components: {
+    MaterialButton
+  },
+  props: {
+    nickname: {
+      type: String,
+      required: true,
+      default: 'User'
+    },
+    size: {
+      type: Number,
+      default: 64
+    },
+    clickable: {
+      type: Boolean,
+      default: false
+    },
+    deletable: {
+      type: Boolean,
+      default: false
+    }
+  },
+  emits: ['avatar-click', 'delete'],
+  setup() {
+    const { isDark } = useData()
+    return { isDark }
+  },
+  computed: {
+    initials() {
+      if (!this.nickname || this.nickname.length === 0) return 'US'
+      
+      const parts = this.nickname.trim().split(/\s+/)
+      if (parts.length === 1) {
+        return parts[0].substring(0, 2).toUpperCase()
+      }
+      
+      return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
+    },
+    
+    backgroundColor() {
+      // Calcola un hash semplice dal nickname per selezionare un colore consistente
+      let hash = 0
+      for (let i = 0; i < this.nickname.length; i++) {
+        hash = this.nickname.charCodeAt(i) + ((hash << 5) - hash)
+      }
+      
+      // Usa il valore assoluto e il modulo per selezionare un colore
+      const index = Math.abs(hash) % MATERIAL_COLORS.length
+      return MATERIAL_COLORS[index]
+    },
+    
+    textColor() {
+      // Calcola se il colore di sfondo è scuro per decidere il colore del testo
+      const hex = this.backgroundColor.replace('#', '')
+      const r = parseInt(hex.substr(0, 2), 16)
+      const g = parseInt(hex.substr(2, 2), 16)
+      const b = parseInt(hex.substr(4, 2), 16)
+      
+      // Formula per la luminosità (percezione umana)
+      const brightness = (r * 299 + g * 587 + b * 114) / 1000
+      
+      return brightness > 128 ? '#000000' : '#FFFFFF'
+    },
+    
+    circleStyle() {
+      return {
+        width: `${this.size}px`,
+        height: `${this.size}px`,
+        backgroundColor: this.backgroundColor,
+        cursor: this.clickable ? 'pointer' : 'default'
+      }
+    },
+    
+    textStyle() {
+      return {
+        color: this.textColor,
+        fontSize: `${this.size / 2.5}px`
+      }
+    }
+  },
+  methods: {
+    handleClick() {
+      if (this.clickable) {
+        this.$emit('avatar-click', this.nickname)
+      }
+    },
+    
+    handleDelete(event) {
+      event && event.stopPropagation() // Previene il bubbling dell'evento
+      this.$emit('delete', this.nickname)
+    }
+  }
+}
+</script>
+
+<style scoped>
+.material-user-avatar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: start;
+  padding: 16px;
+  font-family: 'Roboto', sans-serif;
+  position: relative;
+}
+
+.avatar-container {
+  position: relative;
+  display: inline-block;
+}
+
+.avatar-circle {
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+}
+
+.avatar-circle:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  transform: translateY(-2px);
+}
+
+.avatar-initials {
+  font-weight: 500;
+  user-select: none;
+}
+
+.delete-button {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  z-index: 10;
+}
+
+.avatar-nickname {
+  margin-top: 12px;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--vp-c-text-1);
+  text-align: center;
+  max-width: 100px;
+  word-break: break-word;
+}
+
+/* Stile per dark mode */
+.dark-mode .avatar-nickname {
+  color: var(--vp-c-text-2);
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .avatar-nickname {
+    font-size: 14px;
+    max-width: 80px;
+  }
+  
+  .delete-button {
+    top: -6px;
+    right: -6px;
+  }
+}
+</style>
+
+===== FILE: ./.vitepress/components/MaterialTextButton.vue =====
+<template>
+  <button
+    class="material-button"
+    :class="[colorScheme, { 'dark-mode': isDark, 'button-disabled': disabled }]"
+    @click="handleClick"
+    :disabled="disabled"
+  >
+    <span class="button-text">{{ text }}</span>
+  </button>
+</template>
+
+<script>
+import { useData } from 'vitepress'
+
+export default {
+  name: 'MaterialTextButton',
+  props: {
+    text: {
+      type: String,
+      default: 'Button'
+    },
+    colorScheme: {
+      type: String,
+      default: 'primary',
+      validator: (value) => ['primary', 'secondary', 'outline'].includes(value)
+    },
+    disabled: {
+      type: Boolean,
+      default: false
+    }
+  },
+  emits: ['click'],
+  setup() {
+    const { isDark } = useData()
+    return { isDark }
+  },
+  methods: {
+    handleClick() {
+      if (!this.disabled) {
+        this.$emit('click')
+      }
+    }
+  }
+}
+</script>
+
+<style scoped>
+.material-button {
+  padding: 10px 24px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: 'Roboto', sans-serif;
+  border: none;
+  outline: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.material-button.primary {
+  background-color: var(--vp-c-brand);
+  color: white;
+}
+
+.material-button.primary:hover:not(.button-disabled) {
+  background-color: var(--vp-c-brand-dark);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.material-button.secondary {
+  background-color: var(--vp-c-gray-2);
+  color: var(--vp-c-text-1);
+}
+
+.material-button.secondary:hover:not(.button-disabled) {
+  background-color: var(--vp-c-gray-3);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.material-button.outline {
+  background-color: transparent;
+  color: var(--vp-c-brand);
+  border: 1px solid var(--vp-c-brand);
+}
+
+.material-button.outline:hover:not(.button-disabled) {
+  background-color: var(--vp-c-brand-soft);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.button-disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.button-text {
+  letter-spacing: 0.5px;
+}
+
+/* Dark mode adjustments */
+.dark-mode .material-button.secondary {
+  background-color: var(--vp-c-bg-soft-up);
+  color: var(--vp-c-text-2);
+}
+
+.dark-mode .material-button.secondary:hover:not(.button-disabled) {
+  background-color: var(--vp-c-bg-soft);
+}
+
+.dark-mode .material-button.outline {
+  color: var(--vp-c-brand-light);
+  border-color: var(--vp-c-brand-light);
+}
+
+.dark-mode .material-button.outline:hover:not(.button-disabled) {
+  background-color: var(--vp-c-brand-soft-up);
+}
+</style>
+
+===== FILE: ./.vitepress/components/MaterialModal.vue =====
+<template>
+  <transition name="modal-fade">
+    <div v-if="show" class="modal-overlay" @click.self="closeModal">
+      <div class="modal-container" :class="{ 'dark-mode': isDark }">
+        <div class="modal-header">
+          <h2 class="modal-title">{{ title }}</h2>
+          <button class="modal-close" @click="closeModal">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+              <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+        
+        <div class="modal-body">
+          <slot></slot>
+        </div>
+        
+        <div class="modal-footer">
+          <slot name="footer">
+            <MaterialButton
+              text="Cancel"
+              color-scheme="outline"
+              @click="closeModal"
+            />
+            <MaterialButton
+              text="Confirm"
+              color-scheme="primary"
+              @click="$emit('confirm')"
+            />
+          </slot>
+        </div>
+      </div>
+    </div>
+  </transition>
+</template>
+
+<script>
+import { useData } from 'vitepress'
+import MaterialButton from './MaterialButton.vue'
+
+export default {
+  name: 'MaterialModal',
+  components: {
+    MaterialButton
+  },
+  props: {
+    show: {
+      type: Boolean,
+      default: false
+    },
+    title: {
+      type: String,
+      default: 'Modal Title'
+    }
+  },
+  emits: ['update:show', 'confirm', 'close'],
+  setup() {
+    const { isDark } = useData()
+    return { isDark }
+  },
+  methods: {
+    closeModal() {
+      this.$emit('update:show', false)
+      this.$emit('close')
+    }
+  },
+  watch: {
+    show(newVal) {
+      if (newVal) {
+        document.body.style.overflow = 'hidden'
+      } else {
+        document.body.style.overflow = 'auto'
+      }
+    }
+  }
+}
+</script>
+
+<style scoped>
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 16px;
+}
+
+.modal-container {
+  background-color: var(--vp-c-bg);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  max-width: 500px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px 24px 16px;
+  border-bottom: 1px solid var(--vp-c-border);
+}
+
+.modal-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 500;
+  color: var(--vp-c-text-1);
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--vp-c-text-2);
+  padding: 4px;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.modal-close:hover {
+  background-color: var(--vp-c-default-soft);
+}
+
+.modal-body {
+  padding: 24px;
+  overflow-y: auto;
+  flex-grow: 1;
+}
+
+.modal-footer {
+  padding: 16px 24px;
+  border-top: 1px solid var(--vp-c-border);
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+/* Animation */
+.modal-fade-enter-active,
+.modal-fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.modal-fade-enter-from,
+.modal-fade-leave-to {
+  opacity: 0;
+}
+
+.modal-fade-enter-active .modal-container,
+.modal-fade-leave-active .modal-container {
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.modal-fade-enter-from .modal-container,
+.modal-fade-leave-to .modal-container {
+  transform: scale(0.95);
+  opacity: 0;
+}
+
+/* Dark mode adjustments */
+.dark-mode .modal-container {
+  background-color: var(--vp-c-bg-soft-up);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+</style>
+
+===== FILE: ./.vitepress/components/MaterialToast.vue =====
+<template>
+  <transition name="toast-slide">
+    <div v-if="show" class="toast-container" :class="[type, { 'dark-mode': isDark }]">
+      <div class="toast-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+          <path v-if="type === 'success'" d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path v-if="type === 'warning'" d="M12 9v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path v-if="type === 'error'" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="toast-content">
+        <p class="toast-message">{{ message }}</p>
+      </div>
+      <button class="toast-close" @click="closeToast">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+  </transition>
+</template>
+
+<script>
+import { useData } from 'vitepress'
+
+export default {
+  name: 'MaterialToast',
+  props: {
+    message: {
+      type: String,
+      default: 'Toast message'
+    },
+    type: {
+      type: String,
+      default: 'success',
+      validator: (value) => ['success', 'warning', 'error'].includes(value)
+    },
+    show: {
+      type: Boolean,
+      default: false
+    },
+    duration: {
+      type: Number,
+      default: 4000
+    }
+  },
+  emits: ['update:show', 'close'],
+  setup() {
+    const { isDark } = useData()
+    return { isDark }
+  },
+  watch: {
+    show(newVal) {
+      if (newVal && this.duration > 0) {
+        setTimeout(() => {
+          this.closeToast()
+        }, this.duration)
+      }
+    }
+  },
+  methods: {
+    closeToast() {
+      this.$emit('update:show', false)
+      this.$emit('close')
+    }
+  }
+}
+</script>
+
+<style scoped>
+.toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  display: flex;
+  align-items: center;
+  padding: 16px;
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  min-width: 300px;
+  max-width: 500px;
+  z-index: 1001;
+  animation: toast-in-right 0.3s ease;
+}
+
+.toast-container.success {
+  background-color: #4caf50;
+  color: white;
+}
+
+.toast-container.warning {
+  background-color: #ff9800;
+  color: white;
+}
+
+.toast-container.error {
+  background-color: #f44336;
+  color: white;
+}
+
+.toast-icon {
+  margin-right: 12px;
+  flex-shrink: 0;
+}
+
+.toast-content {
+  flex-grow: 1;
+}
+
+.toast-message {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.toast-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: inherit;
+  opacity: 0.7;
+  margin-left: 12px;
+  padding: 4px;
+  border-radius: 4px;
+  transition: opacity 0.2s ease;
+  flex-shrink: 0;
+}
+
+.toast-close:hover {
+  opacity: 1;
+}
+
+/* Animation */
+.toast-slide-enter-active,
+.toast-slide-leave-active {
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.toast-slide-enter-from,
+.toast-slide-leave-to {
+  transform: translateX(100%);
+  opacity: 0;
+}
+
+@keyframes toast-in-right {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+/* Dark mode adjustments */
+.dark-mode.toast-container {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+</style>
+
+===== FILE: ./.vitepress/components/MaterialAddUser.vue =====
+<template>
+  <div class="material-user-edit" :class="{ 'dark-mode': isDark }">
+    <div class="user-edit-content w-full">
+      <div class="flex flex-grow sm:flex-row sm:items-end gap-3 w-full items-center">
+        <div class="flex-grow sm:w-auto">
+            <MaterialTextInput
+                class="flex-grow"
+                v-model="nickname"
+                :label="`Giocatore ${index + 1}`"
+                placeholder="Inserisci nickname"
+                @update:modelValue="handleNicknameChange"
+            />
+        </div>
+      
+      <div class="mt-2 sm:mt-0 sm:ml-2 flex-shrink-0">
+        <MaterialButton
+            icon="PLUS"
+            color-scheme="PRIMARY"
+            size="small"
+            :disabled="!nickname.trim()"
+            @click="addUser"
+            class="add-button"
+        />
+      </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+import { useData } from 'vitepress'
+import MaterialTextInput from './MaterialTextInput.vue'
+import MaterialButton from './MaterialButton.vue'
+
+export default {
+  name: 'MaterialUserEdit',
+  components: {
+    MaterialTextInput,
+    MaterialButton
+  },
+  props: {
+    modelValue: {
+      type: String,
+      default: ''
+    },
+    index: {
+      type: Number,
+      required: true
+    },
+    deletable: {
+      type: Boolean,
+      default: true
+    }
+  },
+  emits: ['update:modelValue', 'add-user'],
+  setup() {
+    const { isDark } = useData()
+    return { isDark }
+  },
+  data() {
+    return {
+      nickname: this.modelValue
+    }
+  },
+  watch: {
+    modelValue(newVal) {
+      this.nickname = newVal
+    }
+  },
+  methods: {
+    handleNicknameChange(newVal) {
+      this.$emit('update:modelValue', newVal)
+    },
+    
+    addUser() {
+      if (this.nickname.trim()) {
+        this.$emit('add-user', this.nickname.trim())
+        this.nickname = ''
+      }
+    }
+  }
+}
+</script>
+
+<style scoped>
+.material-user-edit {
+  margin-bottom: 16px;
+}
+
+.user-edit-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.add-button {
+  flex-shrink: 0;
+  margin-bottom: 8px;
+}
+
+@media (max-width: 480px) {
+  .user-edit-content {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .add-button {
+    align-self: flex-end;
+    margin-bottom: 0;
+  }
+}
+</style>
+
+===== FILE: ./.vitepress/utils/icons.ts =====
+// Tipi per le configurazioni delle icone
+export interface IconConfig {
+  path: string;
+  viewBox: string;
+  strokeWidth?: number;
+}
+
+// Configurazioni predefinite per le icone
+export const ICONS = {
+  PLUS: {
+    path: 'M12 5V19M5 12H19',
+    viewBox: '0 0 24 24',
+    strokeWidth: 2
+  },
+  COPY: {
+    path: 'M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z',
+    viewBox: '0 0 24 24',
+    strokeWidth: 2
+  },
+  MINUS: {
+    path: 'M5 12H19',
+    viewBox: '0 0 24 24',
+    strokeWidth: 2
+  },
+  EDIT: {
+    path: 'M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z',
+    viewBox: '0 0 24 24',
+    strokeWidth: 2
+  },
+  DELETE: {
+    path: 'M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16',
+    viewBox: '0 0 24 24',
+    strokeWidth: 2
+  }
+} as const;
+
+// Configurazioni predefinite per i colori
+export const COLOR_SCHEMES = {
+  PRIMARY: {
+    bg: 'var(--vp-c-brand)',
+    hoverBg: 'white',
+    icon: 'white',
+    hoverIcon: 'var(--vp-c-brand)'
+  },
+  SECONDARY: {
+    bg: 'var(--vp-c-gray-2)',
+    hoverBg: 'white',
+    icon: 'var(--vp-c-text-1)',
+    hoverIcon: 'var(--vp-c-gray-2)'
+  },
+  DANGER: {
+    bg: 'var(--vp-c-red-1)',
+    hoverBg: 'white',
+    icon: 'white',
+    hoverIcon: 'var(--vp-c-red-1)'
+  },
+  SUCCESS: {
+    bg: 'var(--vp-c-green)',
+    hoverBg: 'white',
+    icon: 'white',
+    hoverIcon: 'var(--vp-c-green)'
+  },
+  WARNING: {
+    bg: 'var(--vp-c-yellow)',
+    hoverBg: 'white',
+    icon: 'white',
+    hoverIcon: 'var(--vp-c-yellow)'
+  }
+} as const;
+
+// Tipo per lo schema colore
+export type ColorScheme = keyof typeof COLOR_SCHEMES;
+
+export const TOAST_TYPES = {
+  SUCCESS: 'success',
+  WARNING: 'warning',
+  ERROR: 'error'
+} as const;
+
+===== FILE: ./.vitepress/utils/words.ts =====
+export const ITALIAN_WORDS = ["gatto", "cane", "topo", "cavallo", "mucca", "pecora", "gallina", "maiale", "capra", "lupo", "volpe", "orso", "leone", "tigre", "elefante", "scimmia", "aquila", "falco", "pesce", "squalo", "balena", "delfino", "tartaruga", "serpente", "ragno", "formica", "ape", "farfalla", "libellula", "coccinella", "albero", "fiore", "prato", "foresta", "montagna", "lago", "fiume", "mare", "oceano", "isola", "città", "paese", "strada", "casa", "palazzo", "scuola", "ospedale", "negozio", "ristorante", "albergo", "banca", "chiesa", "parco", "giardino", "ponte", "tunnel", "automobile", "autobus", "treno", "aereo", "nave", "bicicletta", "moto", "computer", "telefono", "tablet", "televisione", "radio", "libro", "giornale", "rivista", "penna", "matita", "quaderno", "dizionario", "musica", "canzone", "film", "serie", "pittura", "scultura", "fotografia", "ballo", "teatro", "cinema", "concerto", "festival", "sport", "calcio", "basket", "tennis", "nuoto", "corsa", "salto", "pallavolo", "pallacanestro", "golf", "sci", "snowboard", "surf", "arrampicata", "yoga", "meditazione", "cucina", "ricetta", "pizza", "pasta", "riso", "pane", "formaggio", "salume", "frutta", "verdura", "dolce", "torta", "gelato", "caffè", "tè", "vino", "birra", "acqua", "succo", "famiglia", "amico", "vicino", "collega", "compagno", "studente", "insegnante", "dottore", "ingegnere", "avvocato", "artista", "scrittore", "musicista", "atleta", "cuoco", "cameriere", "commesso", "impiegato", "manager", "direttore", "presidente", "re", "regina", "principe", "principessa", "eroe", "cattivo", "poliziotto", "ladro", "pompiere", "soldato", "marinaio", "astronauta", "robot", "alieno", "mostro", "fantasma", "vampiro", "zombie", "strega", "mago", "fata", "folletto", "drago", "unicorno", "fenice", "grifone", "minotauro", "centauro", "sirena", "troll", "goblin", "elfo", "nano", "gigante", "nano", "orco", "demone", "angelo", "dio", "dea", "divinità", "tempio", "altare", "reliquia", "amuleto", "talismano", "spada", "scudo", "arco", "freccia", "armatura", "elmo", "guanto", "stivale", "mantello", "cappello", "occhiali", "orologio", "anello", "collana", "bracciale", "orecchino", "piercing", "tatuaggio", "specchio", "pettine", "spazzolino", "dentifricio", "sapone", "shampoo", "bagnoschiuma", "asciugamano", "lenzuolo", "cuscino", "coperta", "materasso", "letto", "armadio", "comò", "tavolo", "sedia", "divano", "poltrona", "scaffale", "libreria", "caminetto", "finestra", "porta", "tappeto", "tenda", "lampada", "candela", "fornello", "forno", "frigorifero", "lavastoviglie", "lavatrice", "asciugatrice", "ferro", "aspirapolvere", "scope", "paletta", "secchio", "straccio", "detergente", "disinfettante", "deodorante", "insetticida", "fertilizzante", "seme", "pianta", "fiore", "frutto", "ortaggio", "erba", "cespuglio", "ramo", "tronco", "radice", "foglia", "petalo", "spina", "corteccia", "legno", "pietra", "roccia", "sabbia", "terra", "fango", "argilla", "polvere", "cenere", "fumo", "vapore", "nebbia", "nube", "pioggia", "neve", "grandine", "ghiaccio", "vento", "tempesta", "fulmine", "tuono", "arcobaleno", "aurora", "tramonto", "eclissi", "cometa", "meteora", "galassia", "pianeta", "stella", "luna", "sole", "universo", "spazio", "tempo", "età", "epoca", "era", "secolo", "decennio", "anno", "mese", "settimana", "giorno", "ora", "minuto", "secondo", "istante", "momento", "periodo", "stagione", "primavera", "estate", "autunno", "inverno", "caldo", "freddo", "tiepido", "fresco", "umido", "secco", "chiaro", "scuro", "luminoso", "buio", "rumore", "silenzio", "voce", "suono", "eco", "melodia", "ritmo", "armonia", "dissonanza", "colore", "forma", "disegno", "linea", "cerchio", "quadrato", "triangolo", "rettangolo", "ovale", "cubo", "sfera", "cono", "cilindro", "piramide", "parallelepipedo", "numero", "cifra", "quantità", "misura", "dimensione", "lunghezza", "larghezza", "altezza", "profondità", "peso", "volume", "capacità", "velocità", "accelerazione", "forza", "energia", "potenza", "pressione", "temperatura", "umidità", "densità", "massa", "materia", "elemento", "composto", "miscela", "soluzione", "reazione", "trasformazione", "cambiamento", "evoluzione", "rivoluzione", "progresso", "innovazione", "scoperta", "invenzione", "creazione", "distruzione", "costruzione", "produzione", "consumo", "vendita", "acquisto", "prezzo", "valore", "costo", "spesa", "guadagno", "perdita", "profitto", "investimento", "risparmio", "debito", "credito", "denaro", "moneta", "banconota", "assegno", "carta", "contratto", "accordo", "promessa", "impegno", "responsabilità", "dovere", "diritto", "libertà", "giustizia", "uguaglianza", "fraternità", "solidarietà", "compassione", "empatia", "rispetto", "onore", "coraggio", "forza", "debolezza", "paura", "coraggio", "speranza", "disperazione", "gioia", "tristezza", "rabbia", "calma", "pace", "guerra", "conflitto", "lotta", "vittoria", "sconfitta", "successo", "fallimento", "fortuna", "sfortuna", "caso", "destino", "scelta", "decisione", "possibilità", "probabilità", "certezza", "dubbio", "domanda", "risposta", "soluzione", "problema", "mistero", "segreto", "verità", "bugia", "realtà", "finzione", "sogno", "incubo", "fantasia", "immaginazione", "creatività", "logica", "ragione", "intuizione", "conoscenza", "sapienza", "ignoranza", "curiosità", "apprendimento", "insegnamento", "educazione", "esperienza", "abilità", "talento", "genio", "follia", "pazzia", "sanità", "malattia", "cura", "medicina", "farmaco", "vaccino", "intervento", "operazione", "recupero", "guarigione", "salute", "benessere", "fitness", "dieta", "nutrizione", "digiuno", "fame", "sete", "sonno", "veglia", "riposo", "stanchezza", "energia", "vigore", "forza", "resistenza", "flessibilità", "agilità", "coordinazione", "equilibrio", "precisione", "accuratezza", "attenzione", "concentrazione", "memoria", "ricordo", "oblio", "passato", "presente", "futuro", "eternità", "infinito"];
+
+===== FILE: ./.vitepress/utils/gameCode.ts =====
+// Utility per la codifica/decodifica del codice partita
+import { v4 as uuidv4 } from 'uuid';
+
+// Struttura dati della partita
+export interface GameConfig {
+  v: number;
+  id: string;
+  name?: string;
+  createdAt: string;
+  parola: string;
+  giocatori: string[];
+  impostori: string[];
+  sig?: string;
+}
+
+// Parole italiane per il fallback
+const ITALIAN_WORDS = [
+  'pizza', 'spaghetti', 'gelato', 'caffè', 'macchina', 'sole', 'mare', 'montagna',
+  'libro', 'musica', 'arte', 'cinema', 'viaggio', 'amico', 'famiglia', 'lavoro',
+  'scuola', 'università', 'tecnologia', 'natura', 'animali', 'città', 'campagna',
+  'storia', 'geografia', 'matematica', 'scienza', 'medicina', 'economia', 'politica'
+];
+
+// Calcola CRC32 per l'integrità del codice
+function crc32(str: string): string {
+  let crc = 0xFFFFFFFF;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    crc = (crc >>> 8) ^ CRC_TABLE[(crc ^ char) & 0xFF];
+  }
+  return (crc ^ 0xFFFFFFFF).toString(16).padStart(8, '0');
+}
+
+// Tabella CRC32 precalcolata
+const CRC_TABLE = (() => {
+  const table = new Array(256);
+  for (let i = 0; i < 256; i++) {
+    let c = i;
+    for (let j = 0; j < 8; j++) {
+      c = (c & 1) ? 0xEDB88320 ^ (c >>> 1) : c >>> 1;
+    }
+    table[i] = c;
+  }
+  return table;
+})();
+
+// Normalizza i nickname (trim, lowercase, rimuovi duplicati)
+function normalizePlayers(players: string[]): string[] {
+  return players
+    .map(p => p.trim())
+    .filter(p => p.length > 0 && p.length <= 24)
+    .map(p => p.toLowerCase())
+    .filter((p, i, arr) => arr.indexOf(p) === i); // Rimuovi duplicati
+}
+
+// Serializzazione canonica del JSON (ordine chiavi fisso)
+function canonicalStringify(obj: any): string {
+  const orderedObj = Object.keys(obj)
+    .sort()
+    .reduce((acc, key) => {
+      acc[key] = obj[key];
+      return acc;
+    }, {} as any);
+  
+  return JSON.stringify(orderedObj, null, 0);
+}
+
+// Codifica Base64 URL-safe
+function base64UrlEncode(str: string): string {
+  return btoa(str)
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=+$/, '');
+}
+
+// Decodifica Base64 URL-safe
+function base64UrlDecode(str: string): string {
+  str = str
+    .replace(/-/g, '+')
+    .replace(/_/g, '/');
+  
+  // Aggiungi padding se necessario
+  const pad = str.length % 4;
+  if (pad) {
+    str += '='.repeat(4 - pad);
+  }
+  
+  return atob(str);
+}
+
+// Genera una parola casuale dal dizionario
+export function generateRandomWord(): string {
+  return ITALIAN_WORDS[Math.floor(Math.random() * ITALIAN_WORDS.length)];
+}
+
+// Seleziona gli impostori casualmente
+export function selectImpostors(players: string[], count: number): string[] {
+  const shuffled = [...players].sort(() => 0.5 - Math.random());
+  return shuffled.slice(0, count);
+}
+
+// Valida i dati della partita
+function validateGameConfig(config: GameConfig): string[] {
+  const errors: string[] = [];
+  
+  // Validazione versione
+  if (config.v !== 1) {
+    errors.push(`Versione non supportata: ${config.v}`);
+  }
+  
+  // Validazione giocatori
+  if (!Array.isArray(config.giocatori) || config.giocatori.length < 3) {
+    errors.push('Deve esserci almeno 3 giocatori');
+  }
+  
+  // Validazione impostori
+  if (!Array.isArray(config.impostori) || config.impostori.length < 1) {
+    errors.push('Deve esserci almeno 1 impostore');
+  }
+  
+  if (config.impostori.length >= config.giocatori.length) {
+    errors.push('Troppi impostori rispetto ai giocatori');
+  }
+  
+  // Verifica che tutti gli impostori siano presenti nei giocatori
+  const normalizedPlayers = normalizePlayers(config.giocatori);
+  const normalizedImpostors = normalizePlayers(config.impostori);
+  
+  for (const impostore of normalizedImpostors) {
+    if (!normalizedPlayers.includes(impostore)) {
+      errors.push(`Impostore "${impostore}" non presente nella lista giocatori`);
+    }
+  }
+  
+  // Validazione parola
+  if (!config.parola || config.parola.trim().length === 0) {
+    errors.push('Parola non valida');
+  }
+  
+  return errors;
+}
+
+// Codifica la configurazione della partita
+export function encodeGameConfig(config: Omit<GameConfig, 'v' | 'id' | 'createdAt' | 'sig'>): string {
+  // Crea il payload completo
+  const fullConfig: GameConfig = {
+    v: 1,
+    id: uuidv4(),
+    createdAt: new Date().toISOString(),
+    ...config
+  };
+  
+  // Rimuovi il campo sig per il calcolo della firma
+  const { sig, ...configWithoutSig } = fullConfig;
+  
+  // Calcola la firma
+  const canonicalJson = canonicalStringify(configWithoutSig);
+  const signature = crc32(canonicalJson);
+  
+  // Aggiungi la firma al config
+  fullConfig.sig = signature;
+  
+  // Converti in JSON e codifica in Base64 URL-safe
+  const jsonStr = canonicalStringify(fullConfig);
+  const base64Str = base64UrlEncode(jsonStr);
+  
+  // Aggiungi il prefisso
+  return `IMPO1_${base64Str}`;
+}
+
+// Decodifica il codice partita
+export function decodeGameConfig(code: string): GameConfig {
+  // Verifica il prefisso
+  if (!code.startsWith('IMPO1_')) {
+    throw new Error('Formato codice non riconosciuto');
+  }
+  
+  // Rimuovi il prefisso e decodifica
+  const base64Str = code.substring(6);
+  const jsonStr = base64UrlDecode(base64Str);
+  
+  // Parsa il JSON
+  let config: GameConfig;
+  try {
+    config = JSON.parse(jsonStr);
+  } catch (e) {
+    throw new Error('Codice non valido: formato JSON errato');
+  }
+  
+  // Verifica la firma
+  const { sig, ...configWithoutSig } = config;
+  const canonicalJson = canonicalStringify(configWithoutSig);
+  const expectedSig = crc32(canonicalJson);
+  
+  if (sig !== expectedSig) {
+    throw new Error('Codice manomesso o corrotto');
+  }
+  
+  // Valida la configurazione
+  const errors = validateGameConfig(config);
+  if (errors.length > 0) {
+    throw new Error(`Configurazione non valida: ${errors.join(', ')}`);
+  }
+  
+  return config;
+}
+
+// Genera un codice partita completo
+export function generateGameCode(
+  players: string[],
+  impostorsCount: number,
+  name?: string
+): { code: string; config: GameConfig } {
+  // Normalizza i giocatori
+  const normalizedPlayers = normalizePlayers(players);
+  
+  // Validazioni di base
+  if (normalizedPlayers.length < 3) {
+    throw new Error('Almeno 3 giocatori sono necessari');
+  }
+  
+  if (impostorsCount < 1 || impostorsCount >= normalizedPlayers.length) {
+    throw new Error('Numero di impostori non valido');
+  }
+  
+  // Seleziona gli impostori
+  const impostori = selectImpostors(normalizedPlayers, impostorsCount);
+  
+  // Genera la parola
+  const parola = generateRandomWord();
+  
+  // Crea la configurazione
+  const config: Omit<GameConfig, 'v' | 'id' | 'createdAt' | 'sig'> = {
+    name: name || '',
+    giocatori: normalizedPlayers,
+    impostori,
+    parola
+  };
+  
+  // Codifica
+  const code = encodeGameConfig(config);
+  const fullConfig = decodeGameConfig(code); // Verifica che sia valido
+  
+  return { code, config: fullConfig };
+}
+
+===== FILE: ./.vitepress/pages/Create-Party.vue =====
+<template>
+  <div class="create-party-page" :class="{ 'dark-mode': isDark }">
+    <div class="page-container">
+      <h1 class="page-title">Crea Nuova Partita 🎉</h1>
+      
+      <!-- Sezione Giocatori -->
+      <div >
+        <h2 class="section-title">Giocatori</h2>
+        
+        <!-- Lista degli avatar dei giocatori esistenti -->
+        <div class="avatars-grid">
+          <MaterialUserAvatar
+            v-for="(user, index) in avatars"
+            :key="index"
+            :nickname="user"
+            :size="60"
+            :clickable="false"
+            :deletable="!gameCode"
+            @delete="removeUser(index)"
+          />
+        </div>
+        
+        <!-- Input per aggiungere un nuovo giocatore -->
+        <div class="add-user-section" v-if="!gameCode">
+          <MaterialAddUser
+            v-model="newUser"
+            :index="avatars.length"
+            :deletable="false"
+            @add-user="addNewUser"
+          />
+        </div>
+      </div>
+      
+      <!-- Sezione Impostori -->
+      <div v-if="!gameCode">
+        <h2 class="section-title">Impostori</h2>
+        
+        <MaterialNumberInput
+          v-model="impostorsCount"
+          label="Numero di impostori"
+          placeholder="Inserisci numero impostori"
+          :max="maxImpostors"
+          :min="1"
+          :step="1"
+        />
+      </div>
+      
+      <!-- Bottone di creazione -->
+      <div v-if="!gameCode" class="create-button-section">
+        <MaterialTextButton
+          text="Crea Partita 🎮"
+          color-scheme="primary"
+          :disabled="!isFormValid"
+          @click="createParty"
+        />
+      </div>
+      
+      <!-- Mostra il codice partita dopo la creazione -->
+      <div v-if="gameCode" class="game-code-section">
+        <h3>Codice Partita</h3>
+        <div class="code-container">
+          <code class="game-code">{{ gameCode }}</code>
+          <MaterialButton
+            icon="COPY"
+            color-scheme="SECONDARY"
+            size="small"
+            @click="copyGameCode"
+          />
+        </div>
+        <p class="hint">Condividi questo codice con i giocatori per farli unire alla partita</p>
+      </div>
+    </div>
+    
+      <!-- Bottone di accesso al gioco -->
+      <div v-if="gameCode" class="join-party">
+        <MaterialTextButton
+          text="Accedi al party 🎮"
+          color-scheme="primary"
+          :disabled="!isFormValid"
+          @click="joinParty"
+        />
+      </div>
+
+    <!-- Toast di successo -->
+    <MaterialToast
+      v-model:show="showSuccessToast"
+      :message="toastMessage"
+      :type="toastType"
+    />
+  </div>
+</template>
+
+<script>
+import { useData } from 'vitepress'
+import MaterialUserAvatar from '../components/MaterialUserAvatar.vue'
+import MaterialAddUser from '../components/MaterialAddUser.vue'
+import MaterialNumberInput from '../components/MaterialNumberInput.vue'
+import MaterialTextButton from '../components/MaterialTextButton.vue'
+import MaterialToast from '../components/MaterialToast.vue'
+import MaterialButton from '../components/MaterialButton.vue'
+import { generateGameCode } from '../utils/gameCode'
+import { withBase } from 'vitepress'
+
+export default {
+  name: 'CreatePartyPage',
+  components: {
+    MaterialUserAvatar,
+    MaterialAddUser,
+    MaterialNumberInput,
+    MaterialTextButton,
+    MaterialToast,
+    MaterialButton
+  },
+  setup() {
+    const { isDark } = useData()
+
+    const joinParty = () => {
+      window.location.href = withBase('/join-party');
+    };
+
+    return { isDark, joinParty }
+  },
+  data() {
+    return {
+      avatars: [],
+      newUser: '',
+      impostorsCount: 1,
+      showSuccessToast: false,
+      toastMessage: '',
+      toastType: 'success',
+      gameCode: null,
+    }
+  },
+  computed: {
+    maxImpostors() {
+      return Math.max(1, this.avatars.length - 1)
+    },
+    isFormValid() {
+      return this.avatars.length >= 3 && 
+             this.impostorsCount >= 1 && 
+             this.impostorsCount < this.avatars.length
+    }
+  },
+  mounted() {
+    this.loadFromStorage()
+  },
+  methods: {
+    addNewUser() {
+      if (this.newUser.trim()) {
+        this.avatars.push(this.newUser.trim())
+        this.newUser = ''
+        this.saveToStorage()
+      }
+    },
+    removeUser(index) {
+      this.avatars.splice(index, 1)
+      this.saveToStorage()
+      
+      // Aggiorna il numero di impostori se necessario
+      if (this.impostorsCount >= this.avatars.length) {
+        this.impostorsCount = Math.max(1, this.avatars.length - 1)
+      }
+    },
+    async createParty() {
+      if (!this.isFormValid) return
+      
+      try {
+        // Genera il codice partita
+        const { code, config } = generateGameCode(
+          this.avatars,
+          this.impostorsCount,
+          `Partita del ${new Date().toLocaleDateString()}`
+        )
+        
+        // Salva i dati della partita
+        sessionStorage.setItem('currentParty', JSON.stringify(config))
+        sessionStorage.setItem('currentGameCode', JSON.stringify(code))
+        this.gameCode = code
+        
+        // Mostra il toast di successo
+        this.toastMessage = 'Partita creata con successo!'
+        this.toastType = 'success'
+        this.showSuccessToast = true
+        
+      } catch (error) {
+        // Mostra il toast di errore
+        this.toastMessage = `Errore: ${error.message}`
+        this.toastType = 'error'
+        this.showSuccessToast = true
+      }
+    },
+    async copyGameCode() {
+      try {
+        await navigator.clipboard.writeText(this.gameCode)
+        this.toastMessage = 'Codice copiato negli appunti!'
+        this.toastType = 'success'
+        this.showSuccessToast = true
+      } catch (error) {
+        this.toastMessage = 'Impossibile copiare il codice'
+        this.toastType = 'error'
+        this.showSuccessToast = true
+      }
+    },
+    saveToStorage() {
+      sessionStorage.setItem('savedNicknames', JSON.stringify(this.avatars))
+    },
+    loadFromStorage() {
+      try {
+        const savedNicknames = sessionStorage.getItem('savedNicknames')
+        if (savedNicknames) {
+          const nicknames = JSON.parse(savedNicknames)
+          if (nicknames.length > 0) {
+            this.avatars = nicknames
+          }
+        }
+      } catch (e) {
+        console.error('Errore nel caricamento dei nicknames:', e)
+      }
+    }
+  }
+}
+</script>
+
+<style scoped>
+.material-button.primary{
+  width: 100%;
+  margin-top: 2rem;
+}
+
+.game-code-section {
+  background-color: var(--vp-c-bg-soft);
+  border-radius: 8px;
+  padding: 24px;
+  margin-top: 24px;
+  border: 1px solid black;
+}
+
+.game-code-section h3 {
+  margin-top: 0;
+  margin-bottom: 16px;
+  color: var(--vp-c-text-1);
+}
+
+.code-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background-color: var(--vp-c-bg);
+  padding: 12px;
+  border-radius: 4px;
+  border: 1px solid var(--vp-c-border);
+}
+
+.game-code {
+  flex-grow: 1;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 14px;
+  word-break: break-all;
+  color: var(--vp-c-text-1);
+  margin-bottom: 16px;
+}
+
+.avatars-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.add-user-section {
+  margin-top: 16px;
+}
+
+.hint {
+  font-size: 14px;
+  color: var(--vp-c-text-2);
+  margin-top: 8px;
+}
+</style>
+
+===== FILE: ./.vitepress/pages/JoinPartyAdmin.vue =====
+<template>
+  <div class="join-party-admin-page" :class="{ 'dark-mode': isDark }">
+    <div class="page-container">
+      <h1 class="page-title">Divertiti con i tuoi amici!</h1>
+      
+      <!-- Sezione Giocatori -->
+      <div>
+        <h2 class="section-title">Giocatori presenti</h2>
+        
+        <!-- Lista degli avatar dei giocatori -->
+        <div class="avatars-grid">
+          <MaterialUserAvatar
+            v-for="(user, index) in players"
+            :key="index"
+            :nickname="user"
+            :size="60"
+            :clickable="isAvatarClickable(user)"
+            :deletable="false"
+            @avatar-click="handleAvatarClick(user)"
+          />
+        </div>
+      </div>
+      
+      <!-- Bottone per cambiare stato -->
+      <div class="action-button-section">
+        <MaterialTextButton
+          v-if="state === 'revealing'"
+          text="Tutti hanno visto 🎮"
+          color-scheme="primary"
+          :disabled="!allPlayersRevealed"
+          @click="startCheckingPhase"
+        />
+        <MaterialTextButton
+          v-else
+          :text="gameFinished ? 'Nuova Partita' : 'Termina Partita'"
+          :color-scheme="gameFinished ? 'primary' : 'danger'"
+          @click="handleEndGame"
+        />
+      </div>
+    </div>
+    
+    <!-- Modale per la rivelazione del ruolo -->
+    <MaterialModal
+      v-model:show="showRevealModal"
+      :title="`Ruolo di ${selectedPlayer}`"
+      @confirm="closeRevealModal"
+    >
+      <div class="reveal-content">
+        <div v-if="isImpostor(selectedPlayer)" class="impostor-reveal">
+          <h3>Sei un Impostore! 👤</h3>
+          <p>Non farti scoprire dagli altri giocatori.</p>
+        </div>
+        <div v-else class="player-reveal">
+          <h3>La parola è:</h3>
+          <p class="secret-word">{{ secretWord }}</p>
+          <p>Non rivelarla agli impostori!</p>
+        </div>
+      </div>
+    </MaterialModal>
+    
+    <!-- Modale per la verifica del ruolo -->
+    <MaterialModal
+      v-model:show="showCheckModal"
+      :title="`Verifica ${selectedPlayer}`"
+      @confirm="confirmRoleCheck"
+      @close="closeCheckModal"
+    >
+      <div class="check-content">
+        <p>Sei sicuro di voler verificare il ruolo di <strong>{{ selectedPlayer }}</strong>?</p>
+        <p>Questa azione non può essere annullata.</p>
+      </div>
+      
+      <template v-if="roleCheckConfirmed" #footer>
+        <div class="role-result">
+          <div v-if="isImpostor(selectedPlayer)" class="impostor-result">
+            <h3>👤 IMPOSTORE</h3>
+            <p>{{ selectedPlayer }} è un impostore!</p>
+          </div>
+          <div v-else class="innocent-result">
+            <h3>👍 INNOCENTE</h3>
+            <p>{{ selectedPlayer }} non è un impostore.</p>
+          </div>
+        </div>
+      </template>
+    </MaterialModal>
+    
+    <!-- Toast di notifica -->
+    <MaterialToast
+      v-model:show="showToast"
+      :message="toastMessage"
+      :type="toastType"
+    />
+  </div>
+</template>
+
+<script>
+import { useData } from 'vitepress'
+import MaterialUserAvatar from '../components/MaterialUserAvatar.vue'
+import MaterialTextButton from '../components/MaterialTextButton.vue'
+import MaterialModal from '../components/MaterialModal.vue'
+import MaterialToast from '../components/MaterialToast.vue'
+
+export default {
+  name: 'JoinPartyAdmin',
+  components: {
+    MaterialUserAvatar,
+    MaterialTextButton,
+    MaterialModal,
+    MaterialToast
+  },
+  setup() {
+    const { isDark } = useData()
+    return { isDark }
+  },
+  data() {
+    return {
+      state: 'revealing', // 'revealing' or 'checking'
+      players: [],
+      impostors: [],
+      secretWord: '',
+      revealedPlayers: [],
+      checkedPlayers: [],
+      selectedPlayer: '',
+      showRevealModal: false,
+      showCheckModal: false,
+      roleCheckConfirmed: false,
+      gameFinished: false,
+      showToast: false,
+      toastMessage: '',
+      toastType: 'success'
+    }
+  },
+  computed: {
+    allPlayersRevealed() {
+      return this.players.every(player => this.revealedPlayers.includes(player))
+    }
+  },
+  mounted() {
+    this.loadGameData()
+  },
+  methods: {
+    loadGameData() {
+      try {
+        // Carica i dati della partita dal sessionStorage
+        const partyData = sessionStorage.getItem('currentParty')
+        const gameCode = sessionStorage.getItem('currentGameCode')
+        
+        if (!partyData || !gameCode) {
+          this.showError('Nessuna partita trovata. Creane una nuova.')
+          return
+        }
+        
+        const config = JSON.parse(partyData)
+        this.players = config.giocatori || []
+        this.impostors = config.impostori || []
+        this.secretWord = config.parola || ''
+        
+      } catch (error) {
+        console.error('Errore nel caricamento dei dati:', error)
+        this.showError('Errore nel caricamento della partita.')
+      }
+    },
+    
+    isImpostor(player) {
+      return this.impostors.includes(player)
+    },
+    
+    isAvatarClickable(player) {
+      if (this.state === 'revealing') {
+        return !this.revealedPlayers.includes(player)
+      } else {
+        return !this.checkedPlayers.includes(player) && !this.gameFinished
+      }
+    },
+    
+    handleAvatarClick(player) {
+      this.selectedPlayer = player
+      
+      if (this.state === 'revealing') {
+        this.showRevealModal = true
+      } else {
+        this.roleCheckConfirmed = false
+        this.showCheckModal = true
+      }
+    },
+    
+    closeRevealModal() {
+      if (!this.revealedPlayers.includes(this.selectedPlayer)) {
+        this.revealedPlayers.push(this.selectedPlayer)
+      }
+      this.showRevealModal = false
+    },
+    
+    closeCheckModal() {
+      this.showCheckModal = false
+      this.roleCheckConfirmed = false
+    },
+    
+    confirmRoleCheck() {
+      if (!this.roleCheckConfirmed) {
+        this.roleCheckConfirmed = true
+        return false // Non chiudere la modale
+      }
+      
+      // Aggiungi il giocatore alla lista dei controllati
+      if (!this.checkedPlayers.includes(this.selectedPlayer)) {
+        this.checkedPlayers.push(this.selectedPlayer)
+      }
+      
+      this.showCheckModal = false
+      this.roleCheckConfirmed = false
+      
+      // Verifica se tutti i giocatori sono stati controllati
+      if (this.checkedPlayers.length === this.players.length) {
+        this.gameFinished = true
+        this.showToastMessage('Partita completata! Tutti i giocatori sono stati verificati.', 'success')
+      }
+    },
+    
+    startCheckingPhase() {
+      this.state = 'checking'
+      this.showToastMessage('Fase di verifica iniziata! Clicca sui giocatori per scoprire se sono impostori.', 'success')
+    },
+    
+    handleEndGame() {
+      if (this.gameFinished) {
+        // Crea una nuova partita
+        sessionStorage.removeItem('currentParty')
+        sessionStorage.removeItem('currentGameCode')
+        this.$router.push('/create-party')
+      } else {
+        // Termina la partita corrente
+        this.gameFinished = true
+        sessionStorage.removeItem('currentParty')
+        sessionStorage.removeItem('currentGameCode')
+        this.showToastMessage('Partita terminata.', 'success')
+      }
+    },
+    
+    showToastMessage(message, type) {
+      this.toastMessage = message
+      this.toastType = type
+      this.showToast = true
+    },
+    
+    showError(message) {
+      this.showToastMessage(message, 'error')
+    }
+  }
+}
+</script>
+
+<style scoped>
+.join-party-admin-page {
+  min-height: 100vh;
+  padding: 24px;
+  background-color: var(--vp-c-bg);
+  transition: background-color 0.3s ease;
+}
+
+.page-container {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.page-title {
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--vp-c-text-1);
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.section-title {
+  font-size: 20px;
+  font-weight: 500;
+  color: var(--vp-c-text-1);
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.avatars-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.action-button-section {
+  margin-top: 32px;
+  text-align: center;
+}
+
+.reveal-content {
+  text-align: center;
+  padding: 16px 0;
+}
+
+.impostor-reveal {
+  color: var(--vp-c-red);
+}
+
+.player-reveal {
+  color: var(--vp-c-green);
+}
+
+.secret-word {
+  font-size: 24px;
+  font-weight: bold;
+  margin: 16px 0;
+  color: var(--vp-c-brand);
+}
+
+.check-content {
+  text-align: center;
+  padding: 16px 0;
+}
+
+.role-result {
+  text-align: center;
+  padding: 16px;
+  border-radius: 8px;
+  margin: 16px 0;
+}
+
+.impostor-result {
+  background-color: rgba(244, 67, 54, 0.1);
+  color: var(--vp-c-red);
+  border: 1px solid var(--vp-c-red);
+}
+
+.innocent-result {
+  background-color: rgba(76, 175, 80, 0.1);
+  color: var(--vp-c-green);
+  border: 1px solid var(--vp-c-green);
+}
+
+/* Dark mode adjustments */
+.dark-mode .join-party-admin-page {
+  background-color: var(--vp-c-bg-soft-up);
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .join-party-admin-page {
+    padding: 16px;
+  }
+  
+  .page-title {
+    font-size: 24px;
+  }
+  
+  .avatars-grid {
+    grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+    gap: 12px;
+  }
+}
+</style>
+
+===== FILE: ./create-party.md =====
+<script setup>
+import CreatePartyPage from './.vitepress/pages/Create-Party.vue'
+</script>
+
+<CreatePartyPage />
+
+===== FILE: ./postcss.config.ts =====
+export const plugins = {
+    '@tailwindcss/postcss': {},
+    autoprefixer: {},
+};
+
+===== FILE: ./join-party.md =====
+<script setup>
+import JoinPartyAdmin from './.vitepress/pages/JoinPartyAdmin.vue'
+</script>
+
+<JoinPartyAdmin />
+

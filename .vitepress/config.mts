@@ -17,18 +17,16 @@ export default defineConfig({
     // https://vitepress.dev/reference/default-theme-config
     nav: [
       { text: 'Home', link: '/' },
-      { text: 'Examples', link: '/markdown-examples' },
       { text: 'Create Party', link: '/create-party' },
       { text: 'Join Party', link: '/join-party' }
     ],
 
     sidebar: [
       {
-        text: 'Examples',
+        text: '',
         items: [
-          { text: 'Markdown Examples', link: '/markdown-examples' },
-          { text: 'Runtime API Examples', link: '/api-examples' },
-          { text: 'Create Party', link: '/create-party' }
+          { text: 'Create Party', link: '/create-party' },
+          { text: 'Join Party', link: '/join-party' }
         ]
       }
     ],

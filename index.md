@@ -12,7 +12,7 @@ hero:
       link: /create-party
     - theme: alt
       text: Join Party
-      link: /api-examples
+      link: /join-party
 
 features:
   - title: Feature A

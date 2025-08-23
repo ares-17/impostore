@@ -17,12 +17,12 @@
         
         <div class="modal-footer">
           <slot name="footer">
-            <MaterialButton
+            <MaterialTextButton
               text="Cancel"
               color-scheme="outline"
               @click="closeModal"
             />
-            <MaterialButton
+            <MaterialTextButton
               text="Confirm"
               color-scheme="primary"
               @click="$emit('confirm')"
@@ -36,12 +36,12 @@
 
 <script>
 import { useData } from 'vitepress'
-import MaterialButton from './MaterialButton.vue'
+import MaterialTextButton from './MaterialTextButton.vue'
 
 export default {
   name: 'MaterialModal',
   components: {
-    MaterialButton
+    MaterialTextButton
   },
   props: {
     show: {
