@@ -3,6 +3,7 @@ import { defineConfig } from 'vitepress'
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
   title: "Impostore",
+  base: '/impostore/',
   description: "A VitePress Site",
   head: [
     ['link', { rel: 'icon', href: '/icon-head.png' }]
