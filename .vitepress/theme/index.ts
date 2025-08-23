@@ -13,6 +13,8 @@ import MaterialUserAvatar from '../components/MaterialUserAvatar.vue'
 import MaterialTextButton from '../components/MaterialTextButton.vue'
 import MaterialModal from '../components/MaterialModal.vue'
 import MaterialToast from '../components/MaterialToast.vue'
+import ShareTokenButton from '../components/ShareTokenButton.vue'
+import MaterialCheckbox from '../components/MaterialCheckbox.vue'
 
 export default {
   extends: DefaultTheme,
@@ -30,6 +32,8 @@ export default {
     app.component('MaterialUserAvatar', MaterialUserAvatar),
     app.component('MaterialTextButton', MaterialTextButton),
     app.component('MaterialModal', MaterialModal),
-    app.component('MaterialToast', MaterialToast)
+    app.component('MaterialToast', MaterialToast),
+    app.component('ShareTokenButton', ShareTokenButton),
+    app.component('MaterialCheckbox', MaterialCheckbox)
   }
 } satisfies Theme

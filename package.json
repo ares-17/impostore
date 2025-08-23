@@ -6,7 +6,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "vite:dev": "vitepress dev",
     "vite:build": "vitepress build",
-    "vite:preview": "vitepress preview"
+    "vite:preview": "vitepress preview",
+    "gh:deploy": "gh-pages -d .vitepress/dist"
   },
   "author": "",
   "license": "ISC",
@@ -17,6 +18,7 @@
     "@types/canvas-confetti": "^1.9.0",
     "autoprefixer": "^10.4.21",
     "daisyui": "^5.0.50",
+    "gh-pages": "^6.3.0",
     "postcss": "^8.5.6",
     "tailwindcss": "^4.1.12",
     "vitepress": "^2.0.0-alpha.12",

@@ -3,6 +3,11 @@
     <div class="page-container">
       <h1 class="page-title">Divertiti con i tuoi amici!</h1>
 
+    <MaterialCheckbox
+      v-model="tokenAlreadyShared"
+      label="Il token è già stato condiviso con tutti i giocatori"
+    />
+
       <!-- Sezione Giocatori -->
       <div>
         <h2 class="section-title">Giocatori presenti</h2>
@@ -69,6 +74,7 @@ import MaterialModal from '../components/MaterialModal.vue'
 import MaterialToast from '../components/MaterialToast.vue'
 import confetti from 'canvas-confetti'
 import { withBase } from 'vitepress'
+import MaterialCheckbox from '../components/MaterialCheckbox.vue'
 
 export default {
   name: 'JoinPartyAdmin',
@@ -76,7 +82,8 @@ export default {
     MaterialUserAvatar,
     MaterialTextButton,
     MaterialModal,
-    MaterialToast
+    MaterialToast,
+    MaterialCheckbox
   },
   setup() {
     const { isDark } = useData()
@@ -97,7 +104,8 @@ export default {
       gameFinished: false,
       showToast: false,
       toastMessage: '',
-      toastType: 'success'
+      toastType: 'success',
+      tokenAlreadyShared: false,
     }
   },
   computed: {
@@ -136,6 +144,10 @@ export default {
     },
 
     isAvatarClickable(player) {
+      if (this.tokenAlreadyShared) {
+        return !this.checkedPlayers.includes(player) && !this.gameFinished
+      }
+      
       if (this.state === 'revealing') {
         return !this.revealedPlayers.includes(player)
       } else {
@@ -146,11 +158,11 @@ export default {
     handleAvatarClick(player) {
       this.selectedPlayer = player
 
-      if (this.state === 'revealing') {
-        this.showRevealModal = true
-      } else {
+      if (this.tokenAlreadyShared || this.state === 'checking') {
         this.roleCheckConfirmed = false
         this.showCheckModal = true
+      } else {
+        this.showRevealModal = true
       }
     },
 

@@ -2,91 +2,62 @@
   <div class="create-party-page" :class="{ 'dark-mode': isDark }">
     <div class="page-container">
       <h1 class="page-title">Crea Nuova Partita 🎉</h1>
-      
+
       <!-- Sezione Giocatori -->
-      <div >
+      <div>
         <h2 class="section-title">Giocatori</h2>
-        
+
         <!-- Lista degli avatar dei giocatori esistenti -->
         <div class="avatars-grid">
-          <MaterialUserAvatar
-            v-for="(user, index) in avatars"
-            :key="index"
-            :nickname="user"
-            :size="60"
-            :clickable="true"
-            :deletable="!gameCode"
-            @delete="removeUser(index)"
-          />
+          <MaterialUserAvatar v-for="(user, index) in avatars" :key="index" :nickname="user" :size="60"
+            :clickable="true" :deletable="!gameCode" @delete="removeUser(index)" />
         </div>
-        
+
         <!-- Input per aggiungere un nuovo giocatore -->
         <div class="add-user-section" v-if="!gameCode">
-          <MaterialAddUser
-            v-model="newUser"
-            :index="avatars.length"
-            :deletable="false"
-            @add-user="addNewUser"
-          />
+          <MaterialAddUser v-model="newUser" :index="avatars.length" :deletable="false" @add-user="addNewUser" />
         </div>
       </div>
-      
+
       <!-- Sezione Impostori -->
       <div v-if="!gameCode">
         <h2 class="section-title">Impostori</h2>
-        
-        <MaterialNumberInput
-          v-model="impostorsCount"
-          label="Numero di impostori"
-          placeholder="Inserisci numero impostori"
-          :max="maxImpostors"
-          :min="1"
-          :step="1"
-        />
+
+        <MaterialNumberInput v-model="impostorsCount" label="Numero di impostori"
+          placeholder="Inserisci numero impostori" :max="maxImpostors" :min="1" :step="1" />
       </div>
-      
+
       <!-- Bottone di creazione -->
       <div v-if="!gameCode" class="create-button-section">
-        <MaterialTextButton
-          text="Crea Partita 🎮"
-          color-scheme="primary"
-          :disabled="!isFormValid"
-          @click="createParty"
-        />
+        <MaterialTextButton text="Crea Partita 🎮" color-scheme="primary" :disabled="!isFormValid"
+          @click="createParty" />
       </div>
-      
-      <!-- Mostra il codice partita dopo la creazione -->
+
       <div v-if="gameCode" class="game-code-section">
         <h3>Codice Partita</h3>
         <div class="code-container">
           <code class="game-code">{{ gameCode }}</code>
-          <MaterialButton
-            icon="COPY"
-            color-scheme="SECONDARY"
-            size="small"
-            @click="copyGameCode"
-          />
+          <MaterialButton icon="COPY" color-scheme="SECONDARY" size="small" @click="copyGameCode" />
         </div>
         <p class="hint">Condividi questo codice con i giocatori per farli unire alla partita</p>
-      </div>
-    </div>
-    
-      <!-- Bottone di accesso al gioco -->
-      <div v-if="gameCode" class="join-party">
-        <MaterialTextButton
-          text="Accedi al party 🎮"
-          color-scheme="primary"
-          :disabled="!isFormValid"
-          @click="joinParty"
-        />
+
+        <!-- Bottone di condivisione -->
+        <div class="share-button-section" style="margin-top:16px;">
+          <MaterialTextButton text="Condividi Token" color-scheme="primary" :disabled="!gameCode"
+            @click="shareGameCode" />
+        </div>
       </div>
 
+    </div>
+
+    <!-- Bottone di accesso al gioco -->
+    <div v-if="gameCode" class="join-party">
+      <MaterialTextButton text="Accedi al party 🎮" color-scheme="primary" :disabled="!isFormValid"
+        @click="joinParty" />
+    </div>
+
     <!-- Toast di successo -->
-    <MaterialToast
-      v-model:show="showSuccessToast"
-      :message="toastMessage"
-      :type="toastType"
-    />
+    <MaterialToast v-model:show="showSuccessToast" :message="toastMessage" :type="toastType" />
   </div>
 </template>
 
@@ -136,9 +107,9 @@ export default {
       return Math.max(1, this.avatars.length - 1)
     },
     isFormValid() {
-      return this.avatars.length >= 3 && 
-             this.impostorsCount >= 1 && 
-             this.impostorsCount < this.avatars.length
+      return this.avatars.length >= 3 &&
+        this.impostorsCount >= 1 &&
+        this.impostorsCount < this.avatars.length
     }
   },
   mounted() {
@@ -155,7 +126,7 @@ export default {
     removeUser(index) {
       this.avatars.splice(index, 1)
       this.saveToStorage()
-      
+
       // Aggiorna il numero di impostori se necessario
       if (this.impostorsCount >= this.avatars.length) {
         this.impostorsCount = Math.max(1, this.avatars.length - 1)
@@ -163,7 +134,7 @@ export default {
     },
     async createParty() {
       if (!this.isFormValid) return
-      
+
       try {
         // Genera il codice partita
         const { code, config } = generateGameCode(
@@ -171,17 +142,17 @@ export default {
           this.impostorsCount,
           `Partita del ${new Date().toLocaleDateString()}`
         )
-        
+
         // Salva i dati della partita
         sessionStorage.setItem('currentParty', JSON.stringify(config))
         sessionStorage.setItem('currentGameCode', JSON.stringify(code))
         this.gameCode = code
-        
+
         // Mostra il toast di successo
         this.toastMessage = 'Partita creata con successo!'
         this.toastType = 'success'
         this.showSuccessToast = true
-        
+
       } catch (error) {
         // Mostra il toast di errore
         this.toastMessage = `Errore: ${error.message}`
@@ -222,7 +193,7 @@ export default {
 </script>
 
 <style scoped>
-.material-button.primary{
+.material-button.primary {
   width: 100%;
   margin-top: 2rem;
 }
