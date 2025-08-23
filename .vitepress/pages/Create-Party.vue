@@ -158,6 +158,7 @@ export default {
         
         // Salva i dati della partita
         sessionStorage.setItem('currentParty', JSON.stringify(config))
+        sessionStorage.setItem('currentGameCode', JSON.stringify(code))
         this.gameCode = code
         
         // Mostra il toast di successo
