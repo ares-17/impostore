@@ -15,7 +15,7 @@
         <span class="">Inserisci almeno 4 giocatori per procedere</span>
         <!-- Lista degli avatar dei giocatori esistenti -->
         <div class="avatars-grid mt-3">
-          <MaterialUserAvatar v-for="(user, index) in avatars" :key="index" :nickname="user" :size="72"
+          <MaterialUserAvatar v-for="(user, index) in avatars" with-face :key="index" :nickname="user" :size="72"
             :clickable="true" :deletable="!gameCode" @delete="removeUser(index)" />
         </div>
 

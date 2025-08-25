@@ -5,28 +5,62 @@
       <div class="mt-4 mb-4">
         <span>È il momento della verità… 👀 <br>
           Questa pagina ti mostrerà il tuo ruolo segreto:
-          se sei Non impostore, vedrai la parola che devi conoscere come tutti gli altri;
-          se sei Impostore, scoprirai di esserlo e dovrai fingere di conoscere la parola! 🎭
+          <br>
+          - se sei innocente, vedrai la parola che devi conoscere come tutti gli altri;
+          <br>
+          - se sei <strong>impostore</strong>, scoprirai di esserlo e dovrai fingere di conoscere la parola!
           <br>
           Non far vedere questa schermata agli altri: il tuo ruolo deve restare segreto! 🤫</span>
       </div>
 
-      <MaterialCheckbox v-model="tokenAlreadyShared" label="Il token è già stato condiviso con tutti i giocatori" />
+      <h3 class="pb-2">Gli altri giocatori utilizzano il proprio smartphone?</h3>
+      <span class="">Spuntando la casella passerai direttamente alle votazioni, altrimenti passa il tuo smartphone agli altri giocatori per far leggere la parola segreta</span>
+      <MaterialCheckbox v-model="tokenAlreadyShared" class="pt-2" label="Ho condiviso il link con tutti i giocatori" />
 
-      <!-- Sezione Giocatori -->
+      <!-- Nuova sezione per dropdown e bottone quando tokenAlreadyShared è true -->
+      <div v-if="tokenAlreadyShared" class="select-section">
+        <MaterialDropdownFilled
+          v-model="selectedPlayerFromDropdown"
+          :options="availablePlayers"
+          label="E tu chi sei?"
+          placeholder="Non barare, hai una sola possibilità! 👀"
+          class="mb-3"
+          :disabled="dropdownUsed"
+        />
+        <MaterialTextButton
+          text="Mostra la Parola"
+          color-scheme="primary"
+          :disabled="!selectedPlayerFromDropdown || dropdownUsed"
+          @click="revealRoleForDropdown"
+        />
+      </div>
+
+      <!-- Sezione Giocatori (sempre visibile) -->
       <div>
         <h2 class="section-title">Giocatori presenti</h2>
 
+        <span v-if="!tokenAlreadyShared">Passa il tuo smartphone ad un giocatore per volta per la visualizzare la parola segreta</span>
+        <span v-else>Procediamo con le votazioni! Clicca su un giocatore per votare</span>
+
         <!-- Lista degli avatar dei giocatori -->
         <div class="avatars-grid">
-          <MaterialUserAvatar v-for="(user, index) in players" :key="index" :nickname="user" :size="60"
-            :clickable="isAvatarClickable(user)" :deletable="false" @avatar-click="handleAvatarClick(user)" />
+          <MaterialUserAvatar 
+            v-for="(user, index) in players" 
+            with-face 
+            :key="index" 
+            :nickname="user" 
+            :size="72"
+            :clickable="isAvatarClickable(user)" 
+            :deletable="false" 
+            :disabled="isAvatarDisabled(user)"
+            @avatar-click="handleAvatarClick(user)" 
+          />
         </div>
       </div>
 
       <!-- Bottone per cambiare stato -->
       <div class="action-button-section">
-        <MaterialTextButton v-if="state === 'revealing'" text="Tutti hanno visto 🎮" color-scheme="primary"
+        <MaterialTextButton v-if="state === 'revealing' && !tokenAlreadyShared" text="Tutti hanno visto 🎮" color-scheme="primary"
           :disabled="!allPlayersRevealed" @click="startCheckingPhase" />
         <MaterialTextButton v-else :text="gameFinished ? 'Nuova Partita' : 'Termina Partita'"
           :color-scheme="gameFinished ? 'primary' : 'danger'" @click="handleEndGame" />
@@ -80,6 +114,7 @@ import MaterialToast from '../components/MaterialToast.vue'
 import confetti from 'canvas-confetti'
 import { withBase } from 'vitepress'
 import MaterialCheckbox from '../components/MaterialCheckbox.vue'
+import MaterialDropdownFilled from '../components/MaterialDropdownFilled.vue'
 
 export default {
   name: 'JoinPartyAdmin',
@@ -88,7 +123,8 @@ export default {
     MaterialTextButton,
     MaterialModal,
     MaterialToast,
-    MaterialCheckbox
+    MaterialCheckbox,
+    MaterialDropdownFilled
   },
   setup() {
     const { isDark } = useData()
@@ -103,6 +139,7 @@ export default {
       revealedPlayers: [],
       checkedPlayers: [],
       selectedPlayer: '',
+      selectedPlayerFromDropdown: '',
       showRevealModal: false,
       showCheckModal: false,
       roleCheckConfirmed: false,
@@ -111,11 +148,18 @@ export default {
       toastMessage: '',
       toastType: 'success',
       tokenAlreadyShared: false,
+      dropdownUsed: false,
+      playersRevealedViaDropdown: []
     }
   },
   computed: {
     allPlayersRevealed() {
-      return this.players.every(player => this.revealedPlayers.includes(player))
+      return this.players.every(player => this.revealedPlayers.includes(player) || this.playersRevealedViaDropdown.includes(player))
+    },
+    availablePlayers() {
+      return this.players
+        .filter(player => !this.playersRevealedViaDropdown.includes(player))
+        .map(p => ({ label: p, value: p }))
     }
   },
   mounted() {
@@ -149,6 +193,11 @@ export default {
     },
 
     isAvatarClickable(player) {
+      // Se il giocatore è già stato rivelato tramite dropdown, non è cliccabile
+      if (this.playersRevealedViaDropdown.includes(player)) {
+        return false
+      }
+
       if (this.tokenAlreadyShared) {
         return !this.checkedPlayers.includes(player) && !this.gameFinished
       }
@@ -158,6 +207,11 @@ export default {
       } else {
         return !this.checkedPlayers.includes(player) && !this.gameFinished
       }
+    },
+    
+    isAvatarDisabled(player) {
+      // Disabilita l'avatar se è stato rivelato tramite dropdown
+      return this.playersRevealedViaDropdown.includes(player)
     },
 
     handleAvatarClick(player) {
@@ -171,11 +225,29 @@ export default {
       }
     },
 
+    revealRoleForDropdown() {
+      if (!this.selectedPlayerFromDropdown) return
+      
+      this.selectedPlayer = this.selectedPlayerFromDropdown
+      this.showRevealModal = true
+      this.dropdownUsed = true
+      
+      // Aggiungi il giocatore alla lista dei rivelati tramite dropdown
+      if (!this.playersRevealedViaDropdown.includes(this.selectedPlayerFromDropdown)) {
+        this.playersRevealedViaDropdown.push(this.selectedPlayerFromDropdown)
+      }
+    },
+
     closeRevealModal() {
-      if (!this.revealedPlayers.includes(this.selectedPlayer)) {
+      if (!this.tokenAlreadyShared && !this.revealedPlayers.includes(this.selectedPlayer)) {
         this.revealedPlayers.push(this.selectedPlayer)
       }
       this.showRevealModal = false
+      
+      // Se siamo in modalità tokenAlreadyShared, resetta il dropdown
+      if (this.tokenAlreadyShared) {
+        this.selectedPlayerFromDropdown = ''
+      }
     },
 
     closeCheckModal() {
@@ -184,7 +256,6 @@ export default {
     },
 
     confirmRoleCheck() {
-      // protezione: assicurati di avere un selectedPlayer valido
       const player = this.selectedPlayer;
       if (!player) {
         console.warn('confirmRoleCheck chiamato senza selectedPlayer:', player);
@@ -194,19 +265,17 @@ export default {
         return;
       }
 
-      // Primo click: mostro il ruolo (mostra la sezione con il risultato)
       if (!this.roleCheckConfirmed) {
         this.roleCheckConfirmed = true;
+        
       }
 
-      // Secondo click: conferma definitiva -> aggiorna stato e mostra effetti
       if (!this.checkedPlayers.includes(player)) {
         this.checkedPlayers.push(player);
       }
 
       const isImp = this.isImpostor(player);
 
-      // Esegui confetti (diversi colori / intensità per impostore/innocente)
       try {
         if (isImp) {
           confetti({
@@ -217,7 +286,6 @@ export default {
           });
         }
       } catch (e) {
-        // in ambienti senza canvas-confetti o se import non va, non bloccare l'app
         console.warn('confetti failed', e);
       }
 
@@ -225,8 +293,9 @@ export default {
         this.gameFinished = true;
         this.showToastMessage('Partita completata! Tutti i giocatori sono stati verificati.', 'success');
       }
+      
+      
     },
-
 
     startCheckingPhase() {
       this.state = 'checking'
@@ -264,7 +333,6 @@ export default {
 <style scoped>
 .role-result {
   width: 100%;
-  /* occuperà tutta la larghezza */
   display: flex;
   justify-content: center;
   padding: 16px 0;
@@ -277,7 +345,6 @@ export default {
   opacity: 0;
   transform: translateY(20px);
   transition: opacity 1s ease, transform 1s ease;
-  /* transizione lenta */
   width: 100%;
   text-align: center;
 }
@@ -379,6 +446,9 @@ export default {
   border: 1px solid var(--vp-c-red);
 }
 
+.select-section {
+  margin: 20px 0;
+}
 
 /* Dark mode adjustments */
 .dark-mode .join-party-admin-page {

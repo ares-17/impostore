@@ -2,6 +2,7 @@
   <div class="material-user-avatar" :class="{ 'dark-mode': isDark }">
     <div class="avatar-container">
       <div 
+        v-if="!withFace" 
         class="avatar-circle" 
         :style="circleStyle"
         @click="handleClick"
@@ -10,6 +11,16 @@
         <span class="avatar-initials" :style="textStyle">
           {{ initials }}
         </span>
+      </div>
+
+      <div 
+        v-else 
+        class="avatar-circle avatar-face" 
+        :style="faceStyle"
+        @click="handleClick"
+        :class="{ disabled: !clickable }"
+      >
+        <img :src="avatarUrl" alt="avatar" class="avatar-img" />
       </div>
       
       <!-- Bottone di rimozione -->
@@ -35,32 +46,15 @@ import MaterialButton from './MaterialButton.vue'
 
 // Palette di colori Material Design (500 series)
 const MATERIAL_COLORS = [
-  '#F44336', // Red
-  '#E91E63', // Pink
-  '#9C27B0', // Purple
-  '#673AB7', // Deep Purple
-  '#3F51B5', // Indigo
-  '#2196F3', // Blue
-  '#03A9F4', // Light Blue
-  '#00BCD4', // Cyan
-  '#009688', // Teal
-  '#4CAF50', // Green
-  '#8BC34A', // Light Green
-  '#CDDC39', // Lime
-  '#FFEB3B', // Yellow
-  '#FFC107', // Amber
-  '#FF9800', // Orange
-  '#FF5722', // Deep Orange
-  '#795548', // Brown
-  '#9E9E9E', // Grey
-  '#607D8B'  // Blue Grey
+  '#F44336','#E91E63','#9C27B0','#673AB7','#3F51B5',
+  '#2196F3','#03A9F4','#00BCD4','#009688','#4CAF50',
+  '#8BC34A','#CDDC39','#FFEB3B','#FFC107','#FF9800',
+  '#FF5722','#795548','#9E9E9E','#607D8B'
 ]
 
 export default {
   name: 'MaterialUserAvatar',
-  components: {
-    MaterialButton
-  },
+  components: { MaterialButton },
   props: {
     nickname: {
       type: String,
@@ -78,6 +72,10 @@ export default {
     deletable: {
       type: Boolean,
       default: false
+    },
+    withFace: {   // 👈 nuova prop
+      type: Boolean,
+      default: false
     }
   },
   emits: ['avatar-click', 'delete'],
@@ -88,40 +86,28 @@ export default {
   computed: {
     initials() {
       if (!this.nickname || this.nickname.length === 0) return 'US'
-      
       const parts = this.nickname.trim().split(/\s+/)
       if (parts.length === 1) {
         return parts[0].substring(0, 2).toUpperCase()
       }
-      
       return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
     },
-    
     backgroundColor() {
-      // Calcola un hash semplice dal nickname per selezionare un colore consistente
       let hash = 0
       for (let i = 0; i < this.nickname.length; i++) {
         hash = this.nickname.charCodeAt(i) + ((hash << 5) - hash)
       }
-      
-      // Usa il valore assoluto e il modulo per selezionare un colore
       const index = Math.abs(hash) % MATERIAL_COLORS.length
       return MATERIAL_COLORS[index]
     },
-    
     textColor() {
-      // Calcola se il colore di sfondo è scuro per decidere il colore del testo
       const hex = this.backgroundColor.replace('#', '')
       const r = parseInt(hex.substr(0, 2), 16)
       const g = parseInt(hex.substr(2, 2), 16)
       const b = parseInt(hex.substr(4, 2), 16)
-      
-      // Formula per la luminosità (percezione umana)
       const brightness = (r * 299 + g * 587 + b * 114) / 1000
-      
       return brightness > 128 ? '#000000' : '#FFFFFF'
     },
-    
     circleStyle() {
       return {
         width: `${this.size}px`,
@@ -130,11 +116,23 @@ export default {
         cursor: this.clickable ? 'pointer' : 'default'
       }
     },
-    
     textStyle() {
       return {
         color: this.textColor,
         fontSize: `${this.size / 2.5}px`
+      }
+    },
+    avatarUrl() {
+      const seed = encodeURIComponent(`${this.nickname}`);
+      return `https://api.dicebear.com/7.x/big-smile/svg?seed=${seed}`
+    },
+    faceStyle() {
+      return {
+        width: `${this.size}px`,
+        height: `${this.size}px`,
+        cursor: this.clickable ? 'pointer' : 'default',
+        backgroundColor: '#fff',
+        overflow: 'hidden'
       }
     }
   },
@@ -144,9 +142,8 @@ export default {
         this.$emit('avatar-click', this.nickname)
       }
     },
-    
     handleDelete(event) {
-      event && event.stopPropagation() // Previene il bubbling dell'evento
+      event && event.stopPropagation()
       this.$emit('delete', this.nickname)
     }
   }
@@ -161,13 +158,10 @@ export default {
   transform: none;
   background-color: grey !important;
 }
-
 .avatar-circle.disabled:hover {
   box-shadow: none;
   transform: none;
 }
-
-
 .material-user-avatar {
   display: flex;
   flex-direction: column;
@@ -178,10 +172,20 @@ export default {
   font-family: 'Roboto', sans-serif;
   position: relative;
 }
-
 .avatar-container {
   position: relative;
   display: inline-block;
+  -webkit-box-shadow: 0px 9px 24px 1px rgba(170, 171, 186, 1);
+  -moz-box-shadow: 0px 9px 24px 1px rgba(170, 171, 186, 1);
+  box-shadow: 0px 9px 24px 1px rgba(170, 171, 186, 1);
+  border-radius: 50%;
+  border: 2px solid var(--vp-c-brand-soft);
+}
+
+.dark-mode .avatar-container {
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
 }
 
 .avatar-circle {
@@ -192,24 +196,25 @@ export default {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   transition: all 0.3s ease;
 }
-
 .avatar-circle:hover {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
   transform: translateY(-2px);
 }
-
 .avatar-initials {
   font-weight: 500;
   user-select: none;
 }
-
+.avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
 .delete-button {
   position: absolute;
   top: -8px;
   right: -8px;
   z-index: 10;
 }
-
 .avatar-nickname {
   margin-top: 12px;
   font-size: 16px;
@@ -219,19 +224,16 @@ export default {
   max-width: 100px;
   word-break: break-word;
 }
-
-/* Stile per dark mode */
+/* Dark mode */
 .dark-mode .avatar-nickname {
   color: var(--vp-c-text-2);
 }
-
 /* Responsive */
 @media (max-width: 480px) {
   .avatar-nickname {
     font-size: 14px;
     max-width: 80px;
   }
-  
   .delete-button {
     top: -6px;
     right: -6px;
