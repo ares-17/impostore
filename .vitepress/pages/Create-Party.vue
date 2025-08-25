@@ -3,18 +3,19 @@
     <div class="page-container">
       <h1 class="page-title">Crea Nuova Partita 🎉</h1>
       <div class="mt-4">
-        <span>Vuoi iniziare una nuova partita? 🎲
+        <span>Vuoi iniziare una nuova partita? 🎲 <br>
           In questa pagina puoi generare un codice unico da condividere con i tuoi amici.
+          <br>
           Copia il codice e invialo agli altri giocatori: chiunque lo inserirà potrà unirsi alla tua partita.</span>
       </div>
 
       <!-- Sezione Giocatori -->
       <div>
         <h2 class="section-title">Giocatori</h2>
-
+        <span class="">Inserisci almeno 4 giocatori per procedere</span>
         <!-- Lista degli avatar dei giocatori esistenti -->
-        <div class="avatars-grid">
-          <MaterialUserAvatar v-for="(user, index) in avatars" :key="index" :nickname="user" :size="60"
+        <div class="avatars-grid mt-3">
+          <MaterialUserAvatar v-for="(user, index) in avatars" :key="index" :nickname="user" :size="72"
             :clickable="true" :deletable="!gameCode" @delete="removeUser(index)" />
         </div>
 
@@ -48,7 +49,7 @@
 
         <!-- Bottone copia a tutta larghezza -->
         <div class="copy-button-section">
-          <MaterialTextButton text="Copia Codice negli Appunti" color-scheme="outline" @click="copyGameCode" />
+          <MaterialTextButton text="Copia link di accesso" color-scheme="outline" @click="copyGameCode" />
         </div>
 
         <p class="hint">Condividi questo codice con i giocatori per farli unire alla partita</p>
@@ -169,7 +170,9 @@ export default {
     },
     async copyGameCode() {
       try {
-        await navigator.clipboard.writeText(this.gameCode)
+        const baseUrl = "https://ares-17.github.io/impostore"; 
+        const url = `${baseUrl}/view-word.html?token=${this.gameCode}`;
+        await navigator.clipboard.writeText(url);
         this.toastMessage = 'Codice copiato negli appunti!'
         this.toastType = 'success'
         this.showSuccessToast = true

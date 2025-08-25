@@ -173,7 +173,8 @@ export default {
   flex-direction: column;
   align-items: center;
   justify-content: start;
-  padding: 16px;
+  margin-top: 16px;
+  margin-bottom: 16px;
   font-family: 'Roboto', sans-serif;
   position: relative;
 }

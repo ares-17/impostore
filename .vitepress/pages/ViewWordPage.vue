@@ -10,21 +10,43 @@
 
       <!-- Input codice/token -->
       <div class="token-section">
-        <MaterialTextInput v-model="gameToken" label="Inserisci il tuo token" placeholder="IMPO1_..." />
-        <MaterialTextButton text="Carica Partita" color-scheme="primary" :disabled="!gameToken" @click="loadGame" />
+        <MaterialTextInput
+          v-model="gameToken"
+          label="Inserisci il tuo token"
+          placeholder="IMPO1_..." 
+        />
+        <MaterialTextButton
+          text="Carica Partita"
+          color-scheme="primary"
+          :disabled="!gameToken"
+          @click="loadGame"
+        />
       </div>
 
       <!-- Selezione nickname -->
       <div v-if="players.length > 0" class="select-section">
-        <MaterialDropdownFilled v-model="selectedPlayer" :options="players.map(p => ({ label: p, value: p }))"
-          label="Seleziona il tuo nickname" placeholder="Scegli il tuo nome" :disabled="playerRevealed" />
-        <MaterialTextButton text="Mostra la Parola" color-scheme="primary" :disabled="!selectedPlayer || playerRevealed"
-          @click="revealRole" />
+        <MaterialDropdownFilled
+          v-model="selectedPlayer"
+          :options="players.map(p => ({ label: p, value: p }))"
+          label="Seleziona il tuo nickname"
+          placeholder="Scegli il tuo nome"
+          :disabled="playerRevealed"
+        />
+        <MaterialTextButton
+          text="Mostra la Parola"
+          color-scheme="primary"
+          :disabled="!selectedPlayer || playerRevealed"
+          @click="revealRole"
+        />
       </div>
 
       <!-- Modale per parola/ruolo -->
-      <MaterialModal v-model:show="showRevealModal" :title="`Ruolo di ${selectedPlayer}`" @confirm="closeRevealModal"
-        :show-cancel="false">
+      <MaterialModal
+        v-model:show="showRevealModal"
+        :title="`Ruolo di ${selectedPlayer}`"
+        @confirm="closeRevealModal"
+        :show-cancel="false"
+      >
         <div class="reveal-content">
           <div class="role-text" :class="{ show: roleVisible }">
             <template v-if="isImpostor(selectedPlayer)">
@@ -38,7 +60,11 @@
       </MaterialModal>
 
       <!-- Toast -->
-      <MaterialToast v-model:show="showToast" :message="toastMessage" :type="toastType" />
+      <MaterialToast
+        v-model:show="showToast"
+        :message="toastMessage"
+        :type="toastType"
+      />
     </div>
   </div>
 </template>
@@ -77,7 +103,15 @@ export default {
       showToast: false,
       toastMessage: '',
       toastType: 'success',
-      playerRevealed: false  // ← nuovo flag
+      playerRevealed: false
+    }
+  },
+  mounted() {
+    // 🔑 Legge il token dai query param se presente
+    const params = new URLSearchParams(window.location.search)
+    const token = params.get('token')
+    if (token) {
+      this.gameToken = token
     }
   },
   methods: {
@@ -108,7 +142,7 @@ export default {
     closeRevealModal() {
       this.showRevealModal = false
       this.roleVisible = false
-      this.playerRevealed = true   // ← l’utente ha visto il ruolo
+      this.playerRevealed = true
     },
     showToastMessage(msg, type = 'success') {
       this.toastMessage = msg
